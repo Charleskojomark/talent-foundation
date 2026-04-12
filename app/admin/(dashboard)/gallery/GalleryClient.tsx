@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, Star, Trash2, Image as ImageIcon, Film, Plus, Loader2, Play, CheckCircle2, ChevronRight, LayoutGrid } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -14,6 +15,9 @@ type GalleryItem = {
     caption: string;
     is_featured: boolean;
 };
+
+const getErrorMessage = (error: unknown) =>
+    error instanceof Error ? error.message : "Something went wrong.";
 
 export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
     const [data, setData] = useState<GalleryItem[]>(initialData);
@@ -82,9 +86,9 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
                 setUploadSuccess(false);
             }, 1000);
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            alert("Upload failed: " + error.message);
+            alert("Upload failed: " + getErrorMessage(error));
         } finally {
             setIsUploading(false);
         }
@@ -94,7 +98,7 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
         try {
             setData(prev => prev.map(item => item.id === id ? { ...item, is_featured: !currentStatus } : item));
             await toggleGalleryFeatured(id, !currentStatus);
-        } catch (e) {
+        } catch {
             alert("Failed to update");
             setData(prev => prev.map(item => item.id === id ? { ...item, is_featured: currentStatus } : item));
         }
@@ -105,7 +109,7 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
         try {
             setData(prev => prev.filter(item => item.id !== id));
             await deleteGalleryItem(id);
-        } catch (e) {
+        } catch {
             alert("Failed to delete");
             window.location.reload();
         }
@@ -173,7 +177,14 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
                                             </div>
                                         </div>
                                     ) : (
-                                        <img src={item.url} alt={item.caption} className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110 group-hover:rotate-1" />
+                                        <>
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img
+                                                src={item.url}
+                                                alt={item.caption || "Gallery item"}
+                                                className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110 group-hover:rotate-1"
+                                            />
+                                        </>
                                     )}
 
                                     {/* Overlay Badges */}
@@ -273,7 +284,7 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
                                                     {uploadFile?.type.startsWith('video/') ? (
                                                         <video src={previewUrl} className="w-full h-full object-cover" muted />
                                                     ) : (
-                                                        <img src={previewUrl} className="w-full h-full object-cover" />
+                                                        <Image src={previewUrl} alt="Selected upload preview" fill unoptimized className="object-cover" />
                                                     )}
                                                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <span className="text-xs font-black text-white bg-gold/90 px-8 py-3 rounded-2xl text-black border border-white/20 shadow-2xl">Change Master Asset</span>
@@ -333,4 +344,3 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
         </div>
     );
 }
-

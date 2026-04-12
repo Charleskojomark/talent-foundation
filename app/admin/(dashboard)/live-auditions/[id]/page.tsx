@@ -3,8 +3,7 @@
 import { useEffect, useState, use } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Star, MessageSquare, Save, ChevronLeft, Loader2 } from "lucide-react";
+import { Save, ChevronLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 const LiveAuditionRoom = dynamic(() => import("@/components/auditions/LiveAuditionRoom"), {

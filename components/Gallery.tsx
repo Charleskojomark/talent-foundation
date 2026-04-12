@@ -208,11 +208,15 @@ export default function Gallery() {
                             className="w-full h-full flex items-center justify-center bg-black cursor-pointer group/vid"
                             onClick={() => setActiveVideo(item.id)}
                           >
-                            <img
-                              src={item.url.replace('.mp4', '.jpg')} // Try to show a thumbnail if possible, or use a placeholder
-                              className="absolute inset-0 w-full h-full object-cover opacity-50 blur-sm"
-                              onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
-                            />
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.url.replace('.mp4', '.jpg')} // Try to show a thumbnail if possible, or use a placeholder
+                                alt={`${item.caption || "Gallery video"} preview`}
+                                className="absolute inset-0 w-full h-full object-cover opacity-50 blur-sm"
+                                onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                              />
+                            </>
                             <div className="z-10 w-20 h-20 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white group-hover/vid:scale-110 group-hover/vid:bg-gold transition-all duration-500 group-hover/vid:text-black">
                               <Play className="w-8 h-8 fill-current ml-1" />
                             </div>
@@ -220,16 +224,19 @@ export default function Gallery() {
                         )}
                       </div>
                     ) : (
-                      <img
-                        src={item.url}
-                        alt={item.caption}
-                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                        loading="lazy"
-                        onError={(e) => {
-                          console.error("Image load fail:", item.url);
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/450x600?text=Image+Unavailable';
-                        }}
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.url}
+                          alt={item.caption || "Gallery image"}
+                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                          loading="lazy"
+                          onError={(e) => {
+                            console.error("Image load fail:", item.url);
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/450x600?text=Image+Unavailable';
+                          }}
+                        />
+                      </>
                     )}
 
                     {/* Gradient Overlays */}

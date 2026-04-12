@@ -58,7 +58,7 @@ export function AnnouncementsClient({ initialData }: { initialData: Announcement
         try {
             setData(prev => prev.filter(item => item.id !== id));
             await deleteAnnouncement(id);
-        } catch (error) {
+        } catch {
             alert("Failed to delete");
             window.location.reload();
         }

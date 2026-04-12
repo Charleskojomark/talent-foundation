@@ -35,13 +35,16 @@ export default function LiveAuditionRoom({
     const [remoteUsers, setRemoteUsers] = useState<IAgoraRTCRemoteUser[]>([]);
     const [isMicOn, setIsMicOn] = useState(true);
     const [isVideoOn, setIsVideoOn] = useState(true);
-    const [isJoined, setIsJoined] = useState(false);
 
     const localVideoRef = useRef<HTMLDivElement>(null);
+    const clientRef = useRef<IAgoraRTCClient | null>(null);
+    const localAudioTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
+    const localVideoTrackRef = useRef<ICameraVideoTrack | null>(null);
 
     useEffect(() => {
         const init = async () => {
             const agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+            clientRef.current = agoraClient;
             setClient(agoraClient);
 
             agoraClient.on("user-published", async (user, mediaType) => {
@@ -66,6 +69,8 @@ export default function LiveAuditionRoom({
                 await agoraClient.join(appId, channelName, token, parseInt(uid));
 
                 const [audioTrack, videoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+                localAudioTrackRef.current = audioTrack;
+                localVideoTrackRef.current = videoTrack;
                 setLocalAudioTrack(audioTrack);
                 setLocalVideoTrack(videoTrack);
 
@@ -74,7 +79,6 @@ export default function LiveAuditionRoom({
                 }
 
                 await agoraClient.publish([audioTrack, videoTrack]);
-                setIsJoined(true);
             } catch (error) {
                 console.error("Agora Join Error:", error);
             }
@@ -83,12 +87,12 @@ export default function LiveAuditionRoom({
         init();
 
         return () => {
-            localAudioTrack?.close();
-            localVideoTrack?.close();
-            client?.leave();
-            client?.removeAllListeners();
+            localAudioTrackRef.current?.close();
+            localVideoTrackRef.current?.close();
+            clientRef.current?.removeAllListeners();
+            void clientRef.current?.leave();
         };
-    }, []);
+    }, [appId, channelName, token, uid]);
 
     const toggleMic = async () => {
         if (localAudioTrack) {

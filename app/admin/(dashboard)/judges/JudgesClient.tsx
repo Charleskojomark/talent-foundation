@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, Trash2, User, Globe, Link as LinkIcon, Upload } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -12,8 +13,15 @@ type Judge = {
     full_name: string;
     bio: string;
     photo_url: string;
-    social_links: any;
+    social_links: {
+        instagram?: string;
+        twitter?: string;
+        website?: string;
+    } | null;
 };
+
+const getErrorMessage = (error: unknown) =>
+    error instanceof Error ? error.message : "Something went wrong.";
 
 export function JudgesClient({ initialData }: { initialData: Judge[] }) {
     const [data, setData] = useState<Judge[]>(initialData);
@@ -63,9 +71,9 @@ export function JudgesClient({ initialData }: { initialData: Judge[] }) {
 
             await addJudge(fullName, bio, publicUrl, socials);
             window.location.reload();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            alert("Failed to add judge: " + error.message);
+            alert("Failed to add judge: " + getErrorMessage(error));
             setIsSubmitting(false);
         }
     };
@@ -75,7 +83,7 @@ export function JudgesClient({ initialData }: { initialData: Judge[] }) {
         try {
             setData(prev => prev.filter(item => item.id !== id));
             await deleteJudge(id);
-        } catch (error) {
+        } catch {
             alert("Failed to delete");
             window.location.reload();
         }
@@ -116,7 +124,7 @@ export function JudgesClient({ initialData }: { initialData: Judge[] }) {
                                 {/* Photo Top */}
                                 <div className="h-64 relative bg-black/50 overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] to-transparent z-10" />
-                                    <img src={item.photo_url} alt={item.full_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <Image src={item.photo_url} alt={item.full_name} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-700" />
 
                                     <div className="absolute bottom-4 left-4 z-20">
                                         <h3 className="text-2xl font-bold text-white mb-1">{item.full_name}</h3>

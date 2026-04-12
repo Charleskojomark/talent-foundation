@@ -3,8 +3,11 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Video, ArrowRight, Music, AlertCircle } from "lucide-react";
+import { Mic, Video, ArrowRight, AlertCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+
+const getErrorMessage = (error: unknown) =>
+    error instanceof Error ? error.message : "An unexpected error occurred.";
 
 const LiveAuditionRoom = dynamic(() => import("@/components/auditions/LiveAuditionRoom"), {
     ssr: false,
@@ -69,8 +72,8 @@ export default function LiveAuditionPage() {
                 assignedSong: contestant.live_audition_song || "Any Song (Song of Choice)"
             });
 
-        } catch (err: any) {
-            setError(err.message || "An unexpected error occurred.");
+        } catch (err: unknown) {
+            setError(getErrorMessage(err));
         } finally {
             setIsVerifying(false);
         }
