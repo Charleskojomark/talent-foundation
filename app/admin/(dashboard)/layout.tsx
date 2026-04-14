@@ -9,7 +9,8 @@ import {
     Image as ImageIcon,
     Bell,
     LogOut,
-    Gavel
+    Gavel,
+    Ticket
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -23,6 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
         { name: "Announcements", href: "/admin/announcements", icon: Bell },
         { name: "Judges", href: "/admin/judges", icon: Gavel },
+        { name: "Tickets", href: "/admin/tickets", icon: Ticket },
     ];
 
     const handleLogout = async () => {
@@ -50,8 +52,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 key={item.name}
                                 href={item.href}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive
-                                        ? "bg-gradient-to-tr from-gold to-gold-light text-black shadow-[0_0_15px_rgba(223,177,75,0.4)]"
-                                        : "text-gray-400 hover:text-white hover:bg-white/5"
+                                    ? "bg-gradient-to-tr from-gold to-gold-light text-black shadow-[0_0_15px_rgba(223,177,75,0.4)]"
+                                    : "text-gray-400 hover:text-white hover:bg-white/5"
                                     }`}
                             >
                                 <item.icon className={`w-5 h-5 ${isActive ? "text-black" : "opacity-70"}`} />

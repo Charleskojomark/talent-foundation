@@ -148,3 +148,75 @@ export async function sendSecondVideoConfirmationEmail(email: string, name: stri
         return { success: false, error };
     }
 }
+
+export async function sendTicketRequestConfirmationEmail(email: string, name: string) {
+    try {
+        const mailOptions = {
+            from: `"Talent Foundation" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: 'Ticket Purchase Request Received - The Gospel Icon Season 2',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #050505; color: #ffffff; border-radius: 12px; border: 1px solid #dfb14b;">
+                    <h1 style="color: #dfb14b; font-size: 24px; margin-bottom: 20px;">Receipt Uploaded Successfully</h1>
+                    <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${name}</strong>,</p>
+                    <p style="font-size: 16px; line-height: 1.6;">Your ticket purchase request has been submitted and the payment receipt safely received.</p>
+                    
+                    <div style="background-color: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #333;">
+                        <ul style="list-style: none; padding: 0; color: #ccc;">
+                            <li style="margin-bottom: 10px;">• Our team is currently verifying the transfer.</li>
+                            <li style="margin-bottom: 10px;">• Once verified, you will instantly receive your official digital ticket and entry pass to your email!</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; margin-top: 30px;">Best regards,<br/>The Talent Foundation Team</p>
+                </div>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        return { success: true, data: info };
+    } catch (error) {
+        console.error("Ticket Request Email Failed:", error);
+        return { success: false, error };
+    }
+}
+
+export async function sendTicketVerifiedEmail(email: string, name: string, ticketType: string, ticketId: string) {
+    try {
+        const mailOptions = {
+            from: `"Talent Foundation" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: 'Your Official Event Ticket - The Gospel Icon Season 2',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #050505; color: #ffffff; border-radius: 12px; border: 2px solid #dfb14b;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #dfb14b; font-size: 28px; margin-bottom: 5px; text-transform: uppercase;">Official Ticket</h1>
+                        <p style="color: #888; font-size: 14px; letter-spacing: 2px;">THE GOSPEL ICON SEASON 2</p>
+                    </div>
+
+                    <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${name}</strong>,</p>
+                    <p style="font-size: 16px; line-height: 1.6;">Your payment has been successfully verified! Below is your digital admission ticket.</p>
+                    
+                    <div style="background: linear-gradient(135deg, #dfb14b 0%, #a67c00 100%); padding: 3px; border-radius: 12px; margin: 30px 0;">
+                        <div style="background-color: #111; padding: 25px; border-radius: 10px; text-align: center;">
+                            <h2 style="color: #dfb14b; font-size: 24px; margin-top: 0; text-transform: uppercase; letter-spacing: 3px;">${ticketType} PASS</h2>
+                            <div style="margin: 20px 0; padding: 15px; border-top: 1px dashed #444; border-bottom: 1px dashed #444;">
+                                <p style="font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 5px;">Ticket ID</p>
+                                <p style="font-size: 20px; color: #fff; font-family: monospace; letter-spacing: 2px; margin: 0;">${ticketId.split('-')[0].toUpperCase()}</p>
+                            </div>
+                            <p style="font-size: 13px; color: #aaa; margin: 0;">Please present this email (or the unique Ticket ID) at the entrance.</p>
+                        </div>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #888; text-align: center;">We look forward to seeing you at the event!</p>
+                </div>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        return { success: true, data: info };
+    } catch (error) {
+        console.error("Ticket Verified Email Failed:", error);
+        return { success: false, error };
+    }
+}

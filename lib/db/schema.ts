@@ -52,3 +52,14 @@ export const announcements = sqliteTable("announcements", {
     content: text("content").notNull(),
     type: text("type").default('update'), // 'update', 'event', 'result'
 });
+
+export const tickets = sqliteTable("tickets", {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+    fullName: text("full_name").notNull(),
+    email: text("email").notNull(),
+    phone: text("phone").notNull(),
+    ticketType: text("ticket_type").notNull(), // 'Regular: 5000', 'VIP: 20000', etc.
+    receiptUrl: text("receipt_url").notNull(),
+    paymentStatus: text("payment_status").default("pending").notNull(),
+});
