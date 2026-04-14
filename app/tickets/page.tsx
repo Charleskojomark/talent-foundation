@@ -18,8 +18,8 @@ export default function TicketPurchase() {
     const [errorMsg, setErrorMsg] = useState("");
 
     const ticketOptions = [
-        { id: "Regular", name: "Regular Admission", price: "₦5,000", desc: "Standard seating and entry." },
-        { id: "VIP", name: "VIP Pass", price: "₦20,000", desc: "Front-row seating, dedicated entrance, and refreshments." }
+        { id: "Regular", name: "Regular Admission", price: "₦100", desc: "Standard seating and entry." },
+        { id: "VIP", name: "VIP Pass", price: "₦5,000", desc: "Front-row seating, dedicated entrance, and refreshments." }
     ];
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -126,15 +126,15 @@ export default function TicketPurchase() {
                         <div className="bg-black/50 p-4 rounded-xl border border-white/5 space-y-2 font-mono text-sm">
                             <div className="flex justify-between items-center text-gray-300">
                                 <span>Bank:</span>
-                                <strong className="text-white">GT Bank</strong>
+                                <strong className="text-white">Access Bank</strong>
                             </div>
                             <div className="flex justify-between items-center text-gray-300">
                                 <span>Account No:</span>
-                                <strong className="text-gold-light text-base">0839958082</strong>
+                                <strong className="text-gold-light text-base">0103014084</strong>
                             </div>
                             <div className="flex justify-between items-center text-gray-300">
                                 <span>Account Name:</span>
-                                <strong className="text-white text-right">TOUCH OF AN ANGEL DEV. FOUNDATION</strong>
+                                <strong className="text-white text-right">Cindy Chisimdi</strong>
                             </div>
                         </div>
                     </div>
