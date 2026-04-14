@@ -10,7 +10,8 @@ import {
     Bell,
     LogOut,
     Gavel,
-    Ticket
+    Ticket,
+    Mail
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -25,6 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: "Announcements", href: "/secure-admin/announcements", icon: Bell },
         { name: "Judges", href: "/secure-admin/judges", icon: Gavel },
         { name: "Tickets", href: "/secure-admin/tickets", icon: Ticket },
+        { name: "Emails Hub", href: "/secure-admin/emails", icon: Mail },
     ];
 
     const handleLogout = async () => {

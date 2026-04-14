@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { registrations, gallery, announcements, judges } from "@/lib/db/schema";
-import { eq, like, desc } from "drizzle-orm";
+import { registrations, gallery, announcements, judges, tickets } from "@/lib/db/schema";
+import { eq, like, desc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { sendSecondVideoEmail } from "@/lib/email";
 import { deleteFromR2 } from "@/lib/storage";
@@ -202,4 +202,32 @@ export async function unblockUser(registrationId: string) {
     revalidatePath("/secure-admin/registrations");
     revalidatePath("/secure-admin/contestants");
     revalidatePath("/secure-admin");
+}
+
+// ============================================
+// Email Hub Actions
+// ============================================
+
+export async function getAllEmails() {
+    try {
+        const contestantEmails = await db.select({
+            name: registrations.fullName,
+            email: registrations.email,
+            source: sql<string>`'Contestant'`.as("source")
+        }).from(registrations);
+
+        const ticketEmails = await db.select({
+            name: tickets.fullName,
+            email: tickets.email,
+            source: sql<string>`'Ticket Buyer'`.as("source")
+        }).from(tickets);
+
+        // Combine and optionally deduplicate if the same user registered & bought a ticket
+        const allEmails = [...contestantEmails, ...ticketEmails];
+
+        // Return sorted by name
+        return allEmails.sort((a, b) => a.name.localeCompare(b.name));
+    } catch (error: any) {
+        throw new Error(`Failed to get all emails: ${error.message}`);
+    }
 }

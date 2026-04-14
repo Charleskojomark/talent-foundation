@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Save, ChevronLeft, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Save, ChevronLeft, Loader2, CheckCircle, AlertCircle, X } from "lucide-react";
 import { getContestant, saveLiveAuditionScore } from "@/app/secure-admin/actions";
 
 const LiveAuditionRoom = dynamic(() => import("@/components/auditions/LiveAuditionRoom"), {
@@ -23,6 +24,12 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
     const [scores, setScores] = useState({ vocals: 0, performance: 0, spiritual: 0 });
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+    const showToast = useCallback((type: "success" | "error", message: string) => {
+        setToast({ type, message });
+        setTimeout(() => setToast(null), 4000);
+    }, []);
 
     useEffect(() => {
         const loadAudition = async () => {
@@ -49,7 +56,7 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
                 });
             } catch (err) {
                 console.error(err);
-                alert("Failed to load audition data");
+                showToast("error", "Failed to load audition data");
             } finally {
                 setIsLoading(false);
             }
@@ -65,11 +72,11 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
 
             await saveLiveAuditionScore(id, totalScore);
 
-            alert("Score saved successfully!");
-            router.push("/secure-admin/registrations");
+            showToast("success", "Score saved successfully!");
+            setTimeout(() => router.push("/secure-admin/registrations"), 1500);
         } catch (err) {
             console.error(err);
-            alert("Failed to save score");
+            showToast("error", "Failed to save score");
         } finally {
             setIsSaving(false);
         }
@@ -164,6 +171,34 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
                     </div>
                 </div>
             )}
+
+            {/* Global Toast Notification */}
+            <AnimatePresence>
+                {toast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 40, scale: 0.95 }}
+                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-sm"
+                        style={{
+                            background: toast.type === "success" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
+                            borderColor: toast.type === "success" ? "rgba(34,197,94,0.4)" : "rgba(239,68,68,0.4)",
+                        }}
+                    >
+                        {toast.type === "success" ? (
+                            <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+                        ) : (
+                            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+                        )}
+                        <p className={`text-sm font-medium ${toast.type === "success" ? "text-green-300" : "text-red-300"}`}>
+                            {toast.message}
+                        </p>
+                        <button onClick={() => setToast(null)} className="ml-2 text-white/40 hover:text-white transition-colors">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
