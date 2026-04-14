@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, Search, Mail, Phone, Ticket } from "lucide-react";
+import { CheckCircle, XCircle, Search, Mail, Phone, Ticket, AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 type TicketData = {
@@ -19,16 +20,20 @@ export default function TicketsClient({ initialData }: { initialData: TicketData
     const [tickets, setTickets] = useState(initialData);
     const [searchTerm, setSearchTerm] = useState("");
     const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
+    const [verifyingId, setVerifyingId] = useState<string | null>(null);
 
     const filteredTickets = tickets.filter(t =>
         t.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         t.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleVerify = async (id: string) => {
-        if (!confirm("Are you sure you want to verify this ticket payment? The digital ticket will be sent immediately.")) return;
+    const executeVerify = async () => {
+        if (!verifyingId) return;
 
+        const id = verifyingId;
         setLoadingIds(prev => new Set(prev).add(id));
+        setVerifyingId(null);
+
         try {
             const res = await fetch("/api/admin/tickets/verify", {
                 method: "POST",
@@ -110,7 +115,7 @@ export default function TicketsClient({ initialData }: { initialData: TicketData
 
                             {ticket.paymentStatus !== "verified" && (
                                 <button
-                                    onClick={() => handleVerify(ticket.id)}
+                                    onClick={() => setVerifyingId(ticket.id)}
                                     disabled={loadingIds.has(ticket.id)}
                                     className="w-full flex items-center justify-center py-2.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-xl transition-colors font-medium text-sm border border-green-500/30 disabled:opacity-50"
                                 >
@@ -131,6 +136,57 @@ export default function TicketsClient({ initialData }: { initialData: TicketData
                     </div>
                 )}
             </div>
+
+            <AnimatePresence>
+                {verifyingId && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-[#111] border border-white/10 p-8 rounded-3xl max-w-md w-full shadow-2xl relative"
+                        >
+                            <button
+                                onClick={() => setVerifyingId(null)}
+                                className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                            >
+                                <XCircle className="w-6 h-6" />
+                            </button>
+
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mb-6">
+                                    <AlertTriangle className="w-8 h-8 text-gold" />
+                                </div>
+
+                                <h3 className="text-2xl font-bold text-white mb-2">Verify Payment?</h3>
+                                <p className="text-gray-400 mb-8 leading-relaxed">
+                                    Are you sure you want to verify this ticket payment? The official digital ticket will be sent to the buyer immediately.
+                                </p>
+
+                                <div className="flex w-full gap-4">
+                                    <button
+                                        onClick={() => setVerifyingId(null)}
+                                        className="flex-1 py-3 px-4 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={executeVerify}
+                                        className="flex-1 py-3 px-4 rounded-xl bg-gold text-black font-bold hover:bg-gold-light transition-colors shadow-[0_0_15px_rgba(223,177,75,0.4)]"
+                                    >
+                                        Yes, Verify
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
