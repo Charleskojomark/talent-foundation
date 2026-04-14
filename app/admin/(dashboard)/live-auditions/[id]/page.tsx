@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Save, ChevronLeft, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { getContestant, saveLiveAuditionScore } from "@/app/admin/actions";
 
 const LiveAuditionRoom = dynamic(() => import("@/components/auditions/LiveAuditionRoom"), {
     ssr: false,
@@ -28,17 +28,13 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
         const loadAudition = async () => {
             try {
                 // 1. Fetch contestant
-                const { data, error } = await supabase
-                    .from("registrations")
-                    .select("*")
-                    .eq("id", id)
-                    .single();
+                const data = await getContestant(id);
 
-                if (error || !data) throw new Error("Contestant not found");
+                if (!data) throw new Error("Contestant not found");
                 setContestant(data);
 
                 // 2. Fetch token
-                const channelName = data.live_audition_room_id || `audition_${data.id}`;
+                const channelName = data.liveAuditionRoomId || `audition_${data.id}`;
                 const uid = "1"; // Judge is always UID 1 in our logic
                 const tokenRes = await fetch(`/api/agora-token?channelName=${channelName}&uid=${uid}&role=publisher`);
                 const { token, appId } = await tokenRes.json();
@@ -48,8 +44,8 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
                     appId,
                     channelName,
                     uid,
-                    contestantName: data.full_name,
-                    assignedSong: data.live_audition_song
+                    contestantName: data.fullName,
+                    assignedSong: data.liveAuditionSong
                 });
             } catch (err) {
                 console.error(err);
@@ -67,15 +63,7 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
         try {
             const totalScore = Math.round((scores.vocals + scores.performance + scores.spiritual) / 3);
 
-            const { error } = await supabase
-                .from("registrations")
-                .update({
-                    live_audition_score: totalScore,
-                    current_stage: 'live_audition_completed'
-                })
-                .eq("id", id);
-
-            if (error) throw error;
+            await saveLiveAuditionScore(id, totalScore);
 
             alert("Score saved successfully!");
             router.push("/admin/registrations");
@@ -117,7 +105,7 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
                                 <ChevronLeft size={16} /> Back to Dashboard
                             </button>
                             <h2 className="text-2xl font-black text-white">Scoring <span className="text-gold">Panel</span></h2>
-                            <p className="text-zinc-500 text-sm mt-1">Rate {contestant.full_name}'s performance.</p>
+                            <p className="text-zinc-500 text-sm mt-1">Rate {contestant.fullName}'s performance.</p>
                         </div>
 
                         <div className="space-y-10 flex-1">

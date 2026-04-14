@@ -1,21 +1,18 @@
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/lib/db";
+import { registrations, gallery, announcements } from "@/lib/db/schema";
+import { count, eq } from "drizzle-orm";
 import { Users, Star, Image as ImageIcon, Bell } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-    const supabase = await createClient();
 
-    // Fetch quick stats with error handling
-    const fetchCount = async (query: any) => {
+    // Fetch quick stats via Drizzle
+    const fetchObjCount = async (query: any) => {
         try {
-            const { count, error } = await query;
-            if (error) {
-                console.error("Dashboard Fetch Error:", error);
-                return 0;
-            }
-            return count || 0;
+            const [result] = await query;
+            return result?.value || 0;
         } catch (err) {
             console.error("Dashboard exception:", err);
             return 0;
@@ -28,10 +25,10 @@ export default async function AdminDashboard() {
         galleryCount,
         announcementsCount
     ] = await Promise.all([
-        fetchCount(supabase.from("registrations").select("*", { count: "exact", head: true })),
-        fetchCount(supabase.from("registrations").select("*", { count: "exact", head: true }).eq('status', 'verified')),
-        fetchCount(supabase.from("gallery").select("*", { count: "exact", head: true })),
-        fetchCount(supabase.from("announcements").select("*", { count: "exact", head: true })),
+        fetchObjCount(db.select({ value: count() }).from(registrations)),
+        fetchObjCount(db.select({ value: count() }).from(registrations).where(eq(registrations.status, 'verified'))),
+        fetchObjCount(db.select({ value: count() }).from(gallery)),
+        fetchObjCount(db.select({ value: count() }).from(announcements)),
     ]);
 
     const stats = [

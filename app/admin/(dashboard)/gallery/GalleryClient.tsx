@@ -4,16 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, Star, Trash2, Image as ImageIcon, Film, Plus, Loader2, Play, CheckCircle2, ChevronRight, LayoutGrid } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
 import { addGalleryItem, toggleGalleryFeatured, deleteGalleryItem } from "../../actions";
 
 type GalleryItem = {
     id: string;
-    created_at: string;
+    createdAt: string | Date;
     type: "image" | "video";
     url: string;
-    caption: string;
-    is_featured: boolean;
+    caption: string | null;
+    isFeatured: boolean | null;
 };
 
 const getErrorMessage = (error: unknown) =>
@@ -51,30 +50,31 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
             const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const type = uploadFile.type.startsWith('video/') ? 'video' : 'image';
 
-            // Upload to storage
-            const { error: uploadError } = await supabase.storage
-                .from('gallery')
-                .upload(fileName, uploadFile);
+            // Get presigned URL
+            const resUrl = await fetch("/api/upload/url", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: fileName, contentType: uploadFile.type })
+            });
+            const urlData = await resUrl.json();
+            if (!resUrl.ok) throw new Error(urlData.error || "Failed to get upload URL");
 
-            if (uploadError) throw uploadError;
+            // Upload directly to R2
+            const uploadRes = await fetch(urlData.signedUrl, {
+                method: "PUT",
+                headers: { "Content-Type": uploadFile.type },
+                body: uploadFile
+            });
+            if (!uploadRes.ok) throw new Error("Upload to cloud failed");
 
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('gallery')
-                .getPublicUrl(fileName);
+            const publicUrl = urlData.publicUrl || fileName;
 
             // Save to database via Server Action
-            await addGalleryItem(publicUrl, type, caption);
+            const newItem = await addGalleryItem(publicUrl, type, caption);
 
             // Fetch the newly added item to sync state
-            const { data: newItem, error: fetchError } = await supabase
-                .from("gallery")
-                .select("*")
-                .eq("url", publicUrl)
-                .single();
-
-            if (!fetchError && newItem) {
-                setData(prev => [newItem, ...prev]);
+            if (newItem) {
+                setData(prev => [newItem as GalleryItem, ...prev]);
             }
 
             setUploadSuccess(true);
@@ -96,11 +96,11 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
 
     const handleToggleFeatured = async (id: string, currentStatus: boolean) => {
         try {
-            setData(prev => prev.map(item => item.id === id ? { ...item, is_featured: !currentStatus } : item));
+            setData(prev => prev.map(item => item.id === id ? { ...item, isFeatured: !currentStatus } : item));
             await toggleGalleryFeatured(id, !currentStatus);
         } catch {
             alert("Failed to update");
-            setData(prev => prev.map(item => item.id === id ? { ...item, is_featured: currentStatus } : item));
+            setData(prev => prev.map(item => item.id === id ? { ...item, isFeatured: currentStatus } : item));
         }
     };
 
@@ -192,7 +192,7 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
                                         <span className="p-3 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 text-white shadow-xl">
                                             {item.type === 'video' ? <Film className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
                                         </span>
-                                        {item.is_featured && (
+                                        {item.isFeatured && (
                                             <span className="p-3 rounded-2xl bg-gold text-black shadow-gold/30 shadow-lg">
                                                 <Star className="w-4 h-4 fill-black" />
                                             </span>
@@ -216,18 +216,18 @@ export function GalleryClient({ initialData }: { initialData: GalleryItem[] }) {
 
                                     <div className="flex items-center justify-between">
                                         <button
-                                            onClick={() => handleToggleFeatured(item.id, item.is_featured)}
-                                            className={`flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] px-6 py-3 rounded-2xl transition-all border ${item.is_featured
+                                            onClick={() => handleToggleFeatured(item.id, item.isFeatured ?? false)}
+                                            className={`flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] px-6 py-3 rounded-2xl transition-all border ${item.isFeatured
                                                 ? "bg-gold text-black border-gold shadow-lg shadow-gold/20"
                                                 : "bg-white/5 text-gray-400 border-white/10 hover:border-gold/40 hover:text-white"
                                                 }`}
                                         >
-                                            <Star className={`w-3.5 h-3.5 ${item.is_featured ? 'fill-black' : ''}`} />
-                                            {item.is_featured ? "Featured" : "Feature"}
+                                            <Star className={`w-3.5 h-3.5 ${item.isFeatured ? 'fill-black' : ''}`} />
+                                            {item.isFeatured ? "Featured" : "Feature"}
                                         </button>
 
                                         <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest bg-zinc-900/50 px-3 py-1.5 rounded-lg border border-white/5">
-                                            {new Date(item.created_at).toLocaleDateString()}
+                                            {new Date(item.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
                                 </div>

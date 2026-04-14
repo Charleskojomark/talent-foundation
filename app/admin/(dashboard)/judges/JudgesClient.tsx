@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, Trash2, User, Globe, Link as LinkIcon, Upload } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
 import { addJudge, deleteJudge } from "../../actions";
 
 type Judge = {
@@ -57,17 +56,25 @@ export function JudgesClient({ initialData }: { initialData: Judge[] }) {
             const fileExt = photo.name.split('.').pop();
             const fileName = `judge_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-            // Upload to storage
-            const { error: uploadError } = await supabase.storage
-                .from('gallery') // We can reuse gallery bucket for simplicity
-                .upload(fileName, photo);
+            // Get presigned URL
+            const resUrl = await fetch("/api/upload/url", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: fileName, contentType: photo.type, bucketName: 'talent-foundation' })
+                // Note: bucket depends on your R2 setup, using default in API
+            });
+            const urlData = await resUrl.json();
+            if (!resUrl.ok) throw new Error(urlData.error || "Failed to get upload URL");
 
-            if (uploadError) throw uploadError;
+            // Upload directly to R2
+            const uploadRes = await fetch(urlData.signedUrl, {
+                method: "PUT",
+                headers: { "Content-Type": photo.type },
+                body: photo
+            });
+            if (!uploadRes.ok) throw new Error("Upload to cloud failed");
 
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('gallery')
-                .getPublicUrl(fileName);
+            const publicUrl = urlData.publicUrl || fileName;
 
             await addJudge(fullName, bio, publicUrl, socials);
             window.location.reload();

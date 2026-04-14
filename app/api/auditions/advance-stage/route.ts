@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { db } from "@/lib/db";
+import { registrations } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
@@ -10,8 +12,6 @@ export async function POST(req: Request) {
         if (!isAdmin) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-
-        const supabase = createAdminClient();
         const { id, nextStage, song, scheduledTime, roomId } = await req.json();
 
         if (!id || !nextStage) {
@@ -23,31 +23,29 @@ export async function POST(req: Request) {
         }
 
         // 1. Fetch contestant details before updating
-        const { data: contestant, error: fetchError } = await supabase
-            .from("registrations")
-            .select("full_name, email")
-            .eq("id", id)
-            .single();
+        const [contestant] = await db
+            .select({ full_name: registrations.fullName, email: registrations.email })
+            .from(registrations)
+            .where(eq(registrations.id, id));
 
-        if (fetchError || !contestant) {
-            console.error("Fetch Contestant Error:", fetchError);
+        if (!contestant) {
+            console.error("Fetch Contestant Error: Not found");
             return NextResponse.json({ error: "Contestant not found" }, { status: 404 });
         }
 
         const updateData: any = {
-            current_stage: nextStage,
+            currentStage: nextStage,
         };
 
-        if (song) updateData.live_audition_song = song;
-        if (scheduledTime) updateData.live_audition_time = scheduledTime;
-        if (roomId) updateData.live_audition_room_id = roomId;
+        if (song) updateData.liveAuditionSong = song;
+        if (scheduledTime) updateData.liveAuditionTime = scheduledTime;
+        if (roomId) updateData.liveAuditionRoomId = roomId;
 
-        const { error: updateError } = await supabase
-            .from("registrations")
-            .update(updateData)
-            .eq("id", id);
-
-        if (updateError) throw updateError;
+        try {
+            await db.update(registrations).set(updateData).where(eq(registrations.id, id));
+        } catch (updateError: any) {
+            throw new Error(`Update failed: ${updateError.message}`);
+        }
 
         // 2. Send Email Notification (Non-blocking)
         console.log(`[AdvanceStage] Triggering email for ${contestant.email} (Stage: ${nextStage})`);

@@ -1,25 +1,29 @@
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/lib/db";
+import { judges } from "@/lib/db/schema";
+import { desc } from "drizzle-orm";
 import { JudgesClient } from "./JudgesClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function JudgesPage() {
-    const supabase = await createClient();
+    let judgesItems: any[] = [];
+    let loadError = null;
 
-    const { data: judges, error } = await supabase
-        .from("judges")
-        .select("*")
-        .order("created_at", { ascending: false });
+    try {
+        judgesItems = await db.select().from(judges).orderBy(desc(judges.createdAt));
+    } catch (error: any) {
+        loadError = error.message;
+    }
 
-    if (error) {
+    if (loadError) {
         return (
             <div className="min-h-screen bg-black text-white flex items-center justify-center">
                 <div className="glass p-8 rounded-2xl text-red-400">
-                    Failed to load judges: {error.message}
+                    Failed to load judges: {loadError}
                 </div>
             </div>
         );
     }
 
-    return <JudgesClient initialData={judges || []} />;
+    return <JudgesClient initialData={judgesItems || []} />;
 }

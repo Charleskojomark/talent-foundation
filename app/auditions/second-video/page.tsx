@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Upload, CheckCircle, ChevronLeft, Music } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase/client";
 
 export default function SecondVideoSubmission() {
     const [email, setEmail] = useState("");
@@ -24,34 +23,33 @@ export default function SecondVideoSubmission() {
         setErrorMsg("");
 
         try {
-            // Check if contestant exists
-            const { data, error: fetchError } = await supabase
-                .from("registrations")
-                .select("id, full_name")
-                .ilike("email", email.trim())
-                .order("created_at", { ascending: false });
-
-            const contestant = data?.[0];
-
-            if (fetchError || !contestant) {
-                throw new Error("Contestant not found with this email. Please check your email or register first.");
-            }
-
+            // Since this API only updates the secondary video, 
+            // We assume the email handles DB lookup in the API itself 
+            // no need to fetch contestant client-side anymore unless we really had to.
+            // But we can generate a safe path using Date.now
             const timestamp = Date.now();
-            const safeName = contestant.full_name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const safeName = email.split('@')[0].replace(/[^a-z0-9]/gi, '_').toLowerCase();
             const videoExt = video.name.split('.').pop();
             const videoPath = `second_stage/${safeName}_${timestamp}_v2.${videoExt}`;
 
-            // Upload Video
-            const { error: uploadError } = await supabase.storage
-                .from('auditions')
-                .upload(videoPath, video);
+            // Get Presigned URL
+            const resUrl = await fetch("/api/upload/url", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: videoPath, contentType: video.type })
+            });
+            const urlData = await resUrl.json();
+            if (!resUrl.ok) throw new Error(urlData.error || "Failed to get upload URL");
 
-            if (uploadError) throw new Error(`Video Upload Failed: ${uploadError.message}`);
+            // Upload Video directly to R2
+            const uploadRes = await fetch(urlData.signedUrl, {
+                method: "PUT",
+                headers: { "Content-Type": video.type },
+                body: video
+            });
+            if (!uploadRes.ok) throw new Error("Video Upload Failed");
 
-            const { data: { publicUrl: secondVideoUrl } } = supabase.storage
-                .from('auditions')
-                .getPublicUrl(videoPath);
+            const secondVideoUrl = urlData.publicUrl || videoPath;
 
             // Update Database via API
             const res = await fetch("/api/auditions/second-video", {

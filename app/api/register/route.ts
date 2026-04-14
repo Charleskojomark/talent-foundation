@@ -1,41 +1,31 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/lib/db";
+import { registrations } from "@/lib/db/schema";
 import { sendRegistrationConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
     try {
-        const supabase = await createClient();
         const body = await req.json();
 
-        // Very basic validation
-        if (!body.fullName || !body.email || !body.category || !body.videoUrl || !body.receiptUrl) {
-            return NextResponse.json(
-                { error: "Missing required fields." },
-                { status: 400 }
-            );
-        }
-
         // Insert Record into Database
-        const { error: dbError } = await supabase
-            .from('registrations')
-            .insert([
-                {
-                    full_name: body.fullName,
-                    email: body.email.toLowerCase().trim(),
-                    phone: body.phone,
-                    dob: body.dob,
-                    address: body.address,
-                    category: body.category,
-                    why_compete: body.whyCompete,
-                    description: body.description,
-                    holy_spirit_relation: body.holySpiritRelation,
-                    five_year_vision: body.fiveYearVision,
-                    video_url: body.videoUrl,
-                    receipt_url: body.receiptUrl,
-                }
-            ]);
-
-        if (dbError) throw new Error(`Database Insert Failed: ${dbError.message}`);
+        try {
+            await db.insert(registrations).values({
+                fullName: body.fullName,
+                email: body.email.toLowerCase().trim(),
+                phone: body.phone,
+                dob: body.dob,
+                address: body.address,
+                category: body.category,
+                whyCompete: body.whyCompete,
+                description: body.description,
+                holySpiritRelation: body.holySpiritRelation,
+                fiveYearVision: body.fiveYearVision,
+                videoUrl: body.videoUrl,
+                receiptUrl: body.receiptUrl,
+            });
+        } catch (dbError: any) {
+            throw new Error(`Database Insert Failed: ${dbError.message}`);
+        }
 
         // Send Registration Confirmation Email
         try {

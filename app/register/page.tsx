@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronLeft, Upload, CheckCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
 
 export default function Register() {
   const [step, setStep] = useState(1);
@@ -82,17 +81,31 @@ export default function Register() {
       const receiptExt = receipt!.name.split('.').pop();
       const receiptPath = `${safeName}_${timestamp}_receipt.${receiptExt}`;
 
+      // Helper function to upload via presigned URL
+      const uploadWithPresigned = async (file: File, path: string) => {
+        const res = await fetch("/api/upload/url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: path, contentType: file.type })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to get upload URL");
+
+        const uploadRes = await fetch(data.signedUrl, {
+          method: "PUT",
+          headers: { "Content-Type": file.type },
+          body: file
+        });
+        if (!uploadRes.ok) throw new Error("Upload to cloud failed");
+
+        return data.publicUrl || path; // Returns either the full R2 URL or just the path if no public URL configured
+      };
+
       // Upload files concurrently
-      const [videoResult, receiptResult] = await Promise.all([
-        supabase.storage.from('auditions').upload(videoPath, video!),
-        supabase.storage.from('auditions').upload(receiptPath, receipt!)
+      const [videoUrl, receiptUrl] = await Promise.all([
+        uploadWithPresigned(video!, videoPath),
+        uploadWithPresigned(receipt!, receiptPath)
       ]);
-
-      if (videoResult.error) throw new Error(`Video Upload Failed: ${videoResult.error.message}`);
-      if (receiptResult.error) throw new Error(`Receipt Upload Failed: ${receiptResult.error.message}`);
-
-      const { data: { publicUrl: videoUrl } } = supabase.storage.from('auditions').getPublicUrl(videoPath);
-      const { data: { publicUrl: receiptUrl } } = supabase.storage.from('auditions').getPublicUrl(receiptPath);
 
       const res = await fetch("/api/register", {
         method: "POST",

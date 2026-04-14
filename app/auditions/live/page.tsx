@@ -4,7 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Video, ArrowRight, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { verifyLiveAuditionEmail } from "@/app/admin/actions";
 
 const getErrorMessage = (error: unknown) =>
     error instanceof Error ? error.message : "An unexpected error occurred.";
@@ -37,24 +37,10 @@ export default function LiveAuditionPage() {
         setError("");
 
         try {
-            // 1. Fetch contestant details
-            const { data, error: fetchError } = await supabase
-                .from("registrations")
-                .select("*")
-                .ilike("email", email.trim())
-                .order("created_at", { ascending: false });
+            // 1. Fetch contestant details via Server Action
+            const contestant = await verifyLiveAuditionEmail(email);
 
-            const contestant = data?.[0];
-
-            if (fetchError || !contestant) {
-                throw new Error("Contestant not found. Please ensure you are using the correct email.");
-            }
-
-            if (contestant.current_stage !== 'live_audition_scheduled') {
-                throw new Error("You are not currently scheduled for a live audition. Please check your status or contact support.");
-            }
-
-            const channelName = contestant.live_audition_room_id || `audition_${contestant.id}`;
+            const channelName = contestant.liveAuditionRoomId || `audition_${contestant.id}`;
             const uid = Math.floor(Math.random() * 1000000).toString();
 
             // 2. Fetch Agora Token
@@ -68,8 +54,8 @@ export default function LiveAuditionPage() {
                 appId,
                 channelName,
                 uid,
-                contestantName: contestant.full_name,
-                assignedSong: contestant.live_audition_song || "Any Song (Song of Choice)"
+                contestantName: contestant.fullName,
+                assignedSong: contestant.liveAuditionSong || "Any Song (Song of Choice)"
             });
 
         } catch (err: unknown) {

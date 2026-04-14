@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabase/client";
 import { Film, Image as ImageIcon, Play, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
 type GalleryItem = {
@@ -10,7 +9,7 @@ type GalleryItem = {
   url: string;
   type: "image" | "video";
   caption: string;
-  is_featured: boolean;
+  isFeatured: boolean;
 };
 
 export default function Gallery() {
@@ -23,24 +22,20 @@ export default function Gallery() {
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const { data, error: fetchError } = await supabase
-          .from("gallery")
-          .select("*")
-          .order("is_featured", { ascending: false })
-          .order("created_at", { ascending: false });
-
-        if (fetchError) {
-          console.error("Gallery Fetch Error:", fetchError);
-          setError(fetchError.message);
-          return;
+        const res = await fetch("/api/gallery");
+        if (!res.ok) {
+          throw new Error("Failed to fetch gallery");
         }
 
-        if (data) {
+        const data = await res.json();
+        if (data && !data.error) {
           setItems(data);
+        } else if (data.error) {
+          setError(data.error);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Gallery Error:", err);
-        setError("Failed to load gallery");
+        setError(err.message || "Failed to load gallery");
       } finally {
         setLoading(false);
       }
@@ -248,7 +243,7 @@ export default function Gallery() {
                         <span className="p-2 rounded-xl bg-gold/90 text-black shadow-lg">
                           {item.type === "video" ? <Film className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
                         </span>
-                        {item.is_featured && (
+                        {item.isFeatured && (
                           <span className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase tracking-widest">
                             Prime Pick
                           </span>

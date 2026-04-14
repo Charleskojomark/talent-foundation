@@ -1,24 +1,24 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/lib/db";
+import { registrations } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
     try {
-        const supabase = await createClient();
         const { email, secondVideoUrl } = await req.json();
 
         if (!email || !secondVideoUrl) {
             return NextResponse.json({ error: "email and secondVideoUrl are required" }, { status: 400 });
         }
 
-        const { error } = await supabase
-            .from("registrations")
-            .update({
-                second_video_url: secondVideoUrl,
-                current_stage: 'second_video_pending'
-            })
-            .eq("email", email);
-
-        if (error) throw error;
+        try {
+            await db.update(registrations).set({
+                secondVideoUrl: secondVideoUrl,
+                currentStage: 'second_video_pending'
+            }).where(eq(registrations.email, email));
+        } catch (error: any) {
+            throw new Error(`Failed to save second video: ${error.message}`);
+        }
 
         return NextResponse.json({ success: true, message: "Second video submitted successfully!" });
     } catch (error: any) {
