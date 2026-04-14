@@ -23,20 +23,12 @@ export default function Home() {
 
           </div>
 
-          <div className="flex items-center gap-4">
-            <Link
-              href="/auditions/second-video"
-              className="hidden md:inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold tracking-wide text-gold border border-gold/30 hover:bg-gold/10 rounded-full transition-all duration-300"
-            >
-              <span>Second Audition Video</span>
-            </Link>
-            <Link
-              href="/register"
-              className="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold tracking-wide text-black bg-gradient-to-tr from-gold to-gold-light rounded-full overflow-hidden hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(223,177,75,0.3)] hover:shadow-[0_0_30px_rgba(223,177,75,0.5)]"
-            >
-              <span>Register Now</span>
-            </Link>
-          </div>
+          <Link
+            href="/register"
+            className="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold tracking-wide text-black bg-gradient-to-tr from-gold to-gold-light rounded-full overflow-hidden hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(223,177,75,0.3)] hover:shadow-[0_0_30px_rgba(223,177,75,0.5)]"
+          >
+            <span>Register Now</span>
+          </Link>
         </div>
       </nav>
 
@@ -71,18 +63,12 @@ export default function Home() {
             </p>
           </AnimateIn>
 
-          <AnimateIn delay={0.4} className="flex flex-col sm:flex-row gap-4 items-center mt-4">
+          <AnimateIn delay={0.4}>
             <Link
               href="/register"
-              className="inline-flex items-center justify-center px-8 py-4 text-base font-bold tracking-wide text-black bg-gradient-to-tr from-gold to-gold-light rounded-full overflow-hidden hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(223,177,75,0.4)] w-full sm:w-auto"
+              className="inline-flex items-center justify-center px-8 py-4 text-base font-bold tracking-wide text-black bg-gradient-to-tr from-gold to-gold-light rounded-full overflow-hidden hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(223,177,75,0.4)]"
             >
               Start Registration
-            </Link>
-            <Link
-              href="/auditions/second-video"
-              className="inline-flex items-center justify-center px-8 py-4 text-base font-bold tracking-wide text-white border border-white/20 bg-white/5 rounded-full overflow-hidden hover:bg-white/10 hover:border-gold/30 transition-all duration-300 w-full sm:w-auto"
-            >
-              Submit Second Video
             </Link>
           </AnimateIn>
         </div>
@@ -211,20 +197,12 @@ export default function Home() {
             <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
               Step onto the platform. Share the gift you've been given. Let the world hear your sound.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold tracking-wide text-black bg-gradient-to-tr from-gold to-gold-light rounded-full hover:scale-105 transition-transform duration-300 shadow-[0_0_40px_rgba(223,177,75,0.3)]"
-              >
-                Begin Registration
-              </Link>
-              <Link
-                href="/auditions/second-video"
-                className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold tracking-wide text-white border border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/40 rounded-full transition-transform duration-300"
-              >
-                Submit Second Video
-              </Link>
-            </div>
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center px-10 py-5 text-lg font-bold tracking-wide text-black bg-gradient-to-tr from-gold to-gold-light rounded-full hover:scale-105 transition-transform duration-300 shadow-[0_0_40px_rgba(223,177,75,0.3)]"
+            >
+              Begin Registration
+            </Link>
           </AnimateIn>
         </div>
       </section>

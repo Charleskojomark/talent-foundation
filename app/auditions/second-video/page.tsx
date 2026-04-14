@@ -1,49 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Upload, CheckCircle, ChevronLeft, Music, ArrowRight, User } from "lucide-react";
+import { motion } from "framer-motion";
+import { Upload, CheckCircle, ChevronLeft, Music } from "lucide-react";
 import Link from "next/link";
 
 export default function SecondVideoSubmission() {
     const [email, setEmail] = useState("");
-    const [isVerified, setIsVerified] = useState(false);
-    const [userName, setUserName] = useState("");
     const [video, setVideo] = useState<File | null>(null);
-    const [isChecking, setIsChecking] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
-    const handleEligibilityCheck = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email) return setErrorMsg("Please enter your email.");
-
-        setIsChecking(true);
-        setErrorMsg("");
-
-        try {
-            const res = await fetch(`/api/auditions/check-eligibility?email=${encodeURIComponent(email)}`);
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || "Eligibility check failed");
-            }
-
-            setUserName(data.user.fullName);
-            setIsVerified(true);
-            setErrorMsg("");
-        } catch (err: any) {
-            setErrorMsg(err.message);
-            setIsVerified(false);
-        } finally {
-            setIsChecking(false);
-        }
-    }
-
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email || !video || !isVerified) {
+        if (!email || !video) {
             setErrorMsg("Please provide your email and upload the second video.");
             return;
         }
@@ -136,106 +107,71 @@ export default function SecondVideoSubmission() {
                 </div>
 
                 <div className="glass p-8 md:p-12 rounded-3xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                    <form onSubmit={handleUpload} className="space-y-8">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">Registration Email</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full p-4 rounded-xl bg-black/50 border border-white/10 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all"
+                                placeholder="Enter the email you used for registration"
+                                required
+                            />
+                        </div>
 
-                    {!isVerified ? (
-                        <form onSubmit={handleEligibilityCheck} className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-4 text-center">Enter your registered email address to verify your payment status and eligibility for the next stage.</label>
+                        <div className="relative group">
+                            <label className="block text-sm font-medium text-gray-400 mb-2">Audition Video (With Instrumentals)</label>
+                            <div className={`relative border-2 border-dashed rounded-2xl p-10 text-center transition-colors ${video ? 'border-gold bg-gold/5' : 'border-white/20 hover:border-white/50 bg-black/50'}`}>
                                 <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full p-4 rounded-xl bg-black/50 border border-white/10 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all text-center"
-                                    placeholder="your-email@example.com"
+                                    type="file"
+                                    accept="video/*"
+                                    onChange={(e) => setVideo(e.target.files?.[0] || null)}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                     required
                                 />
-                            </div>
-
-                            {errorMsg && (
-                                <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm text-center">
-                                    {errorMsg}
-                                </div>
-                            )}
-
-                            <button
-                                type="submit"
-                                disabled={isChecking}
-                                className="w-full flex items-center px-8 py-4 rounded-full text-lg font-bold text-black bg-gradient-to-tr from-gold to-gold-light justify-center hover:scale-105 transition-transform disabled:opacity-70 disabled:hover:scale-100"
-                            >
-                                {isChecking ? (
-                                    <motion.div
-                                        animate={{ rotate: 360 }}
-                                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                        className="w-6 h-6 border-2 border-black border-t-transparent rounded-full"
-                                    />
-                                ) : (
-                                    <>Verify Eligibility <ArrowRight className="ml-2 w-5 h-5" /></>
-                                )}
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleUpload} className="space-y-8">
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl flex items-center justify-between">
-                                <div className="flex flex-col">
-                                    <span className="text-xs text-green-400 uppercase tracking-widest font-black mb-1">Eligible Applicant</span>
-                                    <span className="text-white font-bold flex items-center gap-2"><User size={16} /> {userName}</span>
-                                </div>
-                                <CheckCircle className="text-green-500 w-8 h-8" />
-                            </motion.div>
-
-                            <div className="relative group">
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Audition Video (With Instrumentals)</label>
-                                <div className={`relative border-2 border-dashed rounded-2xl p-10 text-center transition-colors ${video ? 'border-gold bg-gold/5' : 'border-white/20 hover:border-white/50 bg-black/50'}`}>
-                                    <input
-                                        type="file"
-                                        accept="video/*"
-                                        onChange={(e) => setVideo(e.target.files?.[0] || null)}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                        required
-                                    />
-                                    <div className="pointer-events-none flex flex-col items-center">
-                                        {video ? (
-                                            <>
-                                                <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mb-4">
-                                                    <Music className="w-8 h-8 text-gold" />
-                                                </div>
-                                                <span className="text-lg font-medium text-gold-light truncate max-w-[250px]">{video.name}</span>
-                                                <span className="text-xs text-gray-500 mt-2">Click to change video</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Upload className="w-12 h-12 text-gray-500 mb-4 group-hover:text-gold transition-colors" />
-                                                <span className="text-lg font-medium text-gray-300">Upload Video File</span>
-                                                <p className="text-sm text-gray-500 mt-2">MP4, MOV preferred. Performance with musical backing.</p>
-                                            </>
-                                        )}
-                                    </div>
+                                <div className="pointer-events-none flex flex-col items-center">
+                                    {video ? (
+                                        <>
+                                            <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mb-4">
+                                                <Music className="w-8 h-8 text-gold" />
+                                            </div>
+                                            <span className="text-lg font-medium text-gold-light truncate max-w-[250px]">{video.name}</span>
+                                            <span className="text-xs text-gray-500 mt-2">Click to change video</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-12 h-12 text-gray-500 mb-4 group-hover:text-gold transition-colors" />
+                                            <span className="text-lg font-medium text-gray-300">Upload Video File</span>
+                                            <p className="text-sm text-gray-500 mt-2">MP4, MOV preferred. Performance with musical backing.</p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
+                        </div>
 
-                            {errorMsg && (
-                                <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm text-center">
-                                    {errorMsg}
-                                </div>
+                        {errorMsg && (
+                            <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm text-center">
+                                {errorMsg}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full flex items-center px-8 py-4 rounded-full text-lg font-bold text-black bg-gradient-to-tr from-gold to-gold-light justify-center hover:scale-105 transition-transform disabled:opacity-70 disabled:hover:scale-100 shadow-[0_4px_20px_rgba(223,177,75,0.3)]"
+                        >
+                            {isSubmitting ? (
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                    className="w-6 h-6 border-2 border-black border-t-transparent rounded-full"
+                                />
+                            ) : (
+                                "Submit Second Video"
                             )}
-
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full flex items-center px-8 py-4 rounded-full text-lg font-bold text-black bg-gradient-to-tr from-gold to-gold-light justify-center hover:scale-105 transition-transform disabled:opacity-70 disabled:hover:scale-100 shadow-[0_4px_20px_rgba(223,177,75,0.3)]"
-                            >
-                                {isSubmitting ? (
-                                    <motion.div
-                                        animate={{ rotate: 360 }}
-                                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                        className="w-6 h-6 border-2 border-black border-t-transparent rounded-full"
-                                    />
-                                ) : (
-                                    "Submit Second Video"
-                                )}
-                            </button>
-                        </form>
-                    )}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
