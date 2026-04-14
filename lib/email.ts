@@ -114,3 +114,37 @@ export async function sendRegistrationConfirmationEmail(email: string, name: str
         return { success: false, error };
     }
 }
+
+export async function sendSecondVideoConfirmationEmail(email: string, name: string) {
+    try {
+        const mailOptions = {
+            from: `"Talent Foundation" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: 'Second Audition Video Received! - The Gospel Icon Season 2',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #050505; color: #ffffff; border-radius: 12px; border: 1px solid #dfb14b;">
+                    <h1 style="color: #dfb14b; font-size: 24px; margin-bottom: 20px;">Video Successfully Submitted!</h1>
+                    <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${name}</strong>,</p>
+                    <p style="font-size: 16px; line-height: 1.6;">Your second audition video (performance with instrumentals) has been successfully uploaded and received by our system!</p>
+                    
+                    <div style="background-color: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #333;">
+                        <h2 style="color: #dfb14b; font-size: 18px; margin-top: 0;">What Happens Next?</h2>
+                        <ul style="list-style: none; padding: 0; color: #ccc;">
+                            <li style="margin-bottom: 10px;">• Our panel of judges will review your performance.</li>
+                            <li style="margin-bottom: 10px;">• Once the review process is complete, you will be notified regarding the <strong>Live Audition</strong> stage.</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #888;">Thank you for your patience and good luck!</p>
+                    <p style="font-size: 16px; line-height: 1.6; margin-top: 30px;">Best regards,<br/>The Talent Foundation Team</p>
+                </div>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        return { success: true, data: info };
+    } catch (error) {
+        console.error("Second Video Email Failed:", error);
+        return { success: false, error };
+    }
+}
