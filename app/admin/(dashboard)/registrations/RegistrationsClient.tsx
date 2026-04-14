@@ -8,25 +8,25 @@ import { updatePaymentStatus, blockUser, unblockUser } from "../../actions";
 
 type Registration = {
     id: string;
-    created_at: string;
-    full_name: string;
+    createdAt: string;
+    fullName: string;
     email: string;
     phone: string;
     dob: string;
     address: string;
     category: string;
     description: string;
-    why_compete: string;
-    holy_spirit_relation: string;
-    five_year_vision: string;
-    video_url: string;
-    receipt_url: string;
-    second_video_url?: string;
-    current_stage?: string;
-    live_audition_song?: string;
-    live_audition_time?: string;
-    live_audition_room_id?: string;
-    payment_status: string;
+    whyCompete: string;
+    holySpiritRelation: string;
+    fiveYearVision: string;
+    videoUrl: string;
+    receiptUrl: string;
+    secondVideoUrl?: string;
+    currentStage?: string;
+    liveAuditionSong?: string;
+    liveAuditionTime?: string;
+    liveAuditionRoomId?: string;
+    paymentStatus: string;
     status: string;
 };
 
@@ -44,10 +44,10 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
 
     const filteredData = useMemo(() => {
         return data.filter((item) => {
-            const matchesSearch = item.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            const matchesSearch = item.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.email.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
-            const matchesStatus = statusFilter === "all" || item.payment_status === statusFilter;
+            const matchesStatus = statusFilter === "all" || item.paymentStatus === statusFilter;
             return matchesSearch && matchesCategory && matchesStatus;
         });
     }, [data, searchTerm, categoryFilter, statusFilter]);
@@ -67,7 +67,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
             alert(`Succesfully advanced to ${nextStage.replace(/_/g, ' ')}! Email notification sent.`);
 
             // Update local state
-            setSelectedUser(prev => prev ? { ...prev, current_stage: nextStage, ...extras } : null);
+            setSelectedUser(prev => prev ? { ...prev, currentStage: nextStage, ...extras } : null);
             window.location.reload();
         } catch (error: any) {
             console.error("Stage Update Error:", error);
@@ -101,7 +101,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
             await updatePaymentStatus(id, newStatus);
 
             // Update local state so it reflects immediately
-            setSelectedUser(prev => prev ? { ...prev, payment_status: newStatus, status: newStatus } : null);
+            setSelectedUser(prev => prev ? { ...prev, paymentStatus: newStatus, status: newStatus } : null);
 
             // Data prop is not reactive from server automatically unless we refresh the router
             window.location.reload();
@@ -221,10 +221,10 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                             <td className="p-5">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-gold to-gold-light flex flex-shrink-0 items-center justify-center text-black font-bold uppercase shadow-[0_0_10px_rgba(223,177,75,0.3)]">
-                                                        {item.full_name.charAt(0)}
+                                                        {item.fullName.charAt(0)}
                                                     </div>
                                                     <div>
-                                                        <div className="font-semibold text-white group-hover:text-gold transition-colors">{item.full_name}</div>
+                                                        <div className="font-semibold text-white group-hover:text-gold transition-colors">{item.fullName}</div>
                                                         <div className="text-xs text-gray-500 lg:hidden">{item.email}</div>
                                                     </div>
                                                 </div>
@@ -235,11 +235,11 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                 </span>
                                             </td>
                                             <td className="p-5">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-medium border capitalize ${item.payment_status === 'verified' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                                                    item.payment_status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                                <span className={`px-3 py-1 rounded-full text-xs font-medium border capitalize ${item.paymentStatus === 'verified' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                                                    item.paymentStatus === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
                                                         'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                                                     }`}>
-                                                    {item.payment_status || 'pending'}
+                                                    {item.paymentStatus || 'pending'}
                                                 </span>
                                                 {item.status === 'blocked' && (
                                                     <span className="ml-2 px-2 py-0.5 rounded bg-red-600 text-[10px] font-black uppercase text-white">Blocked</span>
@@ -250,7 +250,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                 <div className="text-xs text-gray-500 mt-1">{item.phone}</div>
                                             </td>
                                             <td className="p-5 hidden lg:table-cell text-sm text-gray-400">
-                                                {new Date(item.created_at).toLocaleDateString(undefined, {
+                                                {new Date(item.createdAt).toLocaleDateString(undefined, {
                                                     year: 'numeric', month: 'short', day: 'numeric'
                                                 })}
                                             </td>
@@ -300,20 +300,20 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                 {/* Header Profile */}
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-10 pb-10 border-b border-white/10">
                                     <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-gold to-gold-light flex items-center justify-center text-black font-black text-4xl shadow-[0_0_30px_rgba(223,177,75,0.4)]">
-                                        {selectedUser.full_name.charAt(0)}
+                                        {selectedUser.fullName.charAt(0)}
                                     </div>
                                     <div>
-                                        <h2 className="text-3xl font-bold text-white mb-2">{selectedUser.full_name}</h2>
+                                        <h2 className="text-3xl font-bold text-white mb-2">{selectedUser.fullName}</h2>
                                         <div className="flex flex-wrap gap-3">
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-gold/10 text-gold-light border border-gold/20 capitalize">
                                                 <Trophy className="w-4 h-4" />
                                                 {selectedUser.category.replace('_', ' ')}
                                             </span>
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm border capitalize ${selectedUser.payment_status === 'verified' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                                                selectedUser.payment_status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm border capitalize ${selectedUser.paymentStatus === 'verified' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                                                selectedUser.paymentStatus === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
                                                     'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                                                 }`}>
-                                                Payment: {selectedUser.payment_status || 'pending'}
+                                                Payment: {selectedUser.paymentStatus || 'pending'}
                                             </span>
                                             {selectedUser.status === 'blocked' && (
                                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-red-500 text-white font-bold">
@@ -322,7 +322,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                             )}
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-white/5 text-gray-300 border border-white/10">
                                                 <Calendar className="w-4 h-4 opacity-70" />
-                                                Applied: {new Date(selectedUser.created_at).toLocaleDateString()}
+                                                Applied: {new Date(selectedUser.createdAt).toLocaleDateString()}
                                             </span>
                                         </div>
                                     </div>
@@ -369,14 +369,14 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                         <div>
                                             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><LinkIcon className="w-5 h-5 text-gold" /> Uploaded Files</h3>
                                             <div className="space-y-3">
-                                                {selectedUser.video_url && (
-                                                    <a href={selectedUser.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-gold/10 hover:border-gold/30 hover:text-gold-light transition-all group">
+                                                {selectedUser.videoUrl && (
+                                                    <a href={selectedUser.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-gold/10 hover:border-gold/30 hover:text-gold-light transition-all group">
                                                         <span className="flex items-center gap-3 text-sm font-medium"><PlayCircle className="w-5 h-5 text-gold group-hover:text-gold-light" /> Audition Video</span>
                                                         <ChevronRight className="w-4 h-4 opacity-50" />
                                                     </a>
                                                 )}
-                                                {selectedUser.receipt_url && (
-                                                    <a href={selectedUser.receipt_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-gold/10 hover:border-gold/30 hover:text-gold-light transition-all group">
+                                                {selectedUser.receiptUrl && (
+                                                    <a href={selectedUser.receiptUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-gold/10 hover:border-gold/30 hover:text-gold-light transition-all group">
                                                         <span className="flex items-center gap-3 text-sm font-medium"><FileText className="w-5 h-5 text-gold group-hover:text-gold-light" /> Payment Receipt</span>
                                                         <ChevronRight className="w-4 h-4 opacity-50" />
                                                     </a>
@@ -394,17 +394,17 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
 
                                         <div>
                                             <h3 className="text-sm font-semibold text-gold tracking-widest uppercase mb-2">Why Compete?</h3>
-                                            <p className="text-gray-300 text-sm leading-relaxed bg-white/5 p-5 rounded-2xl border border-white/5">{selectedUser.why_compete}</p>
+                                            <p className="text-gray-300 text-sm leading-relaxed bg-white/5 p-5 rounded-2xl border border-white/5">{selectedUser.whyCompete}</p>
                                         </div>
 
                                         <div>
                                             <h3 className="text-sm font-semibold text-gold tracking-widest uppercase mb-2">Relationship with Holy Spirit</h3>
-                                            <p className="text-gray-300 text-sm leading-relaxed bg-white/5 p-5 rounded-2xl border border-white/5">{selectedUser.holy_spirit_relation}</p>
+                                            <p className="text-gray-300 text-sm leading-relaxed bg-white/5 p-5 rounded-2xl border border-white/5">{selectedUser.holySpiritRelation}</p>
                                         </div>
 
                                         <div>
                                             <h3 className="text-sm font-semibold text-gold tracking-widest uppercase mb-2">5-Year Vision</h3>
-                                            <p className="text-gray-300 text-sm leading-relaxed bg-white/5 p-5 rounded-2xl border border-white/5">{selectedUser.five_year_vision}</p>
+                                            <p className="text-gray-300 text-sm leading-relaxed bg-white/5 p-5 rounded-2xl border border-white/5">{selectedUser.fiveYearVision}</p>
                                         </div>
 
                                         {/* Audition Stage Management */}
@@ -415,25 +415,25 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Current Stage</p>
-                                                        <p className="text-lg font-bold text-white capitalize">{selectedUser.current_stage?.replace(/_/g, ' ') || 'Registration'}</p>
+                                                        <p className="text-lg font-bold text-white capitalize">{selectedUser.currentStage?.replace(/_/g, ' ') || 'Registration'}</p>
                                                     </div>
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedUser.current_stage === 'live_audition_scheduled' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
-                                                        selectedUser.current_stage === 'second_video_pending' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${selectedUser.currentStage === 'live_audition_scheduled' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                                                        selectedUser.currentStage === 'second_video_pending' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
                                                             'bg-zinc-800 text-zinc-400 border border-white/5'
                                                         }`}>
-                                                        Stage {selectedUser.current_stage === 'live_audition_scheduled' ? '3' : selectedUser.current_stage === 'second_video_pending' ? '2' : '1'}
+                                                        Stage {selectedUser.currentStage === 'live_audition_scheduled' ? '3' : selectedUser.currentStage === 'second_video_pending' ? '2' : '1'}
                                                     </span>
                                                 </div>
 
-                                                {selectedUser.second_video_url && (
-                                                    <a href={selectedUser.second_video_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-xl bg-gold/5 border border-gold/20 hover:bg-gold/10 transition-all group">
+                                                {selectedUser.secondVideoUrl && (
+                                                    <a href={selectedUser.secondVideoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-xl bg-gold/5 border border-gold/20 hover:bg-gold/10 transition-all group">
                                                         <span className="flex items-center gap-3 text-sm font-bold text-gold-light"><Music className="w-5 h-5" /> View Second Video (Instrumentals)</span>
                                                         <ChevronRight className="w-4 h-4 opacity-50" />
                                                     </a>
                                                 )}
 
                                                 <div className="space-y-4 pt-4 border-t border-white/5">
-                                                    {(selectedUser.current_stage === 'registration' || !selectedUser.current_stage) && selectedUser.payment_status === 'verified' && (
+                                                    {(selectedUser.currentStage === 'registration' || !selectedUser.currentStage) && selectedUser.paymentStatus === 'verified' && (
                                                         <button
                                                             disabled={isUpdating}
                                                             onClick={() => handleAdvanceStage(selectedUser.id, 'second_video_pending')}
@@ -443,7 +443,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                         </button>
                                                     )}
 
-                                                    {selectedUser.current_stage === 'second_video_pending' && (
+                                                    {selectedUser.currentStage === 'second_video_pending' && (
                                                         <div className="space-y-4 p-4 bg-black/40 rounded-xl border border-white/5">
                                                             <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Schedule Live Audition</p>
                                                             <input
@@ -477,13 +477,13 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                         </div>
                                                     )}
 
-                                                    {selectedUser.current_stage === 'live_audition_scheduled' && (
+                                                    {selectedUser.currentStage === 'live_audition_scheduled' && (
                                                         <div className="space-y-4">
                                                             <div className="p-4 bg-zinc-900 rounded-xl">
                                                                 <p className="text-xs text-zinc-500">Scheduled for:</p>
-                                                                <p className="font-bold">{new Date(selectedUser.live_audition_time!).toLocaleString()}</p>
+                                                                <p className="font-bold">{new Date(selectedUser.liveAuditionTime!).toLocaleString()}</p>
                                                                 <p className="text-xs text-zinc-500 mt-2">Assigned Song:</p>
-                                                                <p className="font-bold text-gold-light">{selectedUser.live_audition_song}</p>
+                                                                <p className="font-bold text-gold-light">{selectedUser.liveAuditionSong}</p>
                                                             </div>
                                                             <Link
                                                                 href={`/admin/live-auditions/${selectedUser.id}`}
@@ -503,14 +503,14 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                 <h3 className="text-sm font-semibold text-red-400 tracking-widest uppercase mb-4">Payment Verification</h3>
                                                 <div className="flex gap-4">
                                                     <button
-                                                        disabled={isUpdating || selectedUser.payment_status === 'verified'}
+                                                        disabled={isUpdating || selectedUser.paymentStatus === 'verified'}
                                                         onClick={() => handleUpdateStatus(selectedUser.id, 'verified')}
                                                         className="flex-1 py-3 px-4 rounded-xl font-bold bg-green-500/20 border border-green-500/50 hover:bg-green-500 hover:text-black text-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         Approve Payment
                                                     </button>
                                                     <button
-                                                        disabled={isUpdating || selectedUser.payment_status === 'rejected'}
+                                                        disabled={isUpdating || selectedUser.paymentStatus === 'rejected'}
                                                         onClick={() => handleUpdateStatus(selectedUser.id, 'rejected')}
                                                         className="flex-1 py-3 px-4 rounded-xl font-bold bg-white/10 hover:bg-red-500/20 text-white hover:text-red-400 border border-white/10 hover:border-red-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >

@@ -8,11 +8,11 @@ import { addJudge, deleteJudge } from "../../actions";
 
 type Judge = {
     id: string;
-    created_at: string;
-    full_name: string;
+    createdAt: string;
+    fullName: string;
     bio: string;
-    photo_url: string;
-    social_links: {
+    photoUrl: string;
+    socialLinks: {
         instagram?: string;
         twitter?: string;
         website?: string;
@@ -131,10 +131,10 @@ export function JudgesClient({ initialData }: { initialData: Judge[] }) {
                                 {/* Photo Top */}
                                 <div className="h-64 relative bg-black/50 overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] to-transparent z-10" />
-                                    <Image src={item.photo_url} alt={item.full_name} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <Image src={item.photoUrl} alt={item.fullName} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-700" />
 
                                     <div className="absolute bottom-4 left-4 z-20">
-                                        <h3 className="text-2xl font-bold text-white mb-1">{item.full_name}</h3>
+                                        <h3 className="text-2xl font-bold text-white mb-1">{item.fullName}</h3>
                                     </div>
 
                                     <button
@@ -151,20 +151,20 @@ export function JudgesClient({ initialData }: { initialData: Judge[] }) {
                                         {item.bio}
                                     </p>
 
-                                    {item.social_links && (Object.values(item.social_links).some(Boolean)) && (
+                                    {item.socialLinks && (Object.values(item.socialLinks).some(Boolean)) && (
                                         <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                                            {item.social_links.instagram && (
-                                                <a href={item.social_links.instagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-gold hover:bg-gold/10 transition-colors">
+                                            {item.socialLinks.instagram && (
+                                                <a href={item.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-gold hover:bg-gold/10 transition-colors">
                                                     <span className="text-xs font-bold font-mono tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">IG</span>
                                                 </a>
                                             )}
-                                            {item.social_links.twitter && (
-                                                <a href={item.social_links.twitter} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-xs font-bold font-mono tracking-widest uppercase">
+                                            {item.socialLinks.twitter && (
+                                                <a href={item.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 transition-colors text-xs font-bold font-mono tracking-widest uppercase">
                                                     X
                                                 </a>
                                             )}
-                                            {item.social_links.website && (
-                                                <a href={item.social_links.website} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                            {item.socialLinks.website && (
+                                                <a href={item.socialLinks.website} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
                                                     <Globe className="w-4 h-4" />
                                                 </a>
                                             )}
