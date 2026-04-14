@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
-import { registrations, gallery, announcements } from "@/lib/db/schema";
+import { registrations, gallery, announcements, tickets } from "@/lib/db/schema";
 import { count, eq } from "drizzle-orm";
-import { Users, Star, Image as ImageIcon, Bell } from "lucide-react";
+import { Users, Star, Image as ImageIcon, Bell, Ticket } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -23,17 +23,20 @@ export default async function AdminDashboard() {
         registrationsCount,
         contestantsCount,
         galleryCount,
-        announcementsCount
+        announcementsCount,
+        ticketsCount
     ] = await Promise.all([
         fetchObjCount(db.select({ value: count() }).from(registrations)),
         fetchObjCount(db.select({ value: count() }).from(registrations).where(eq(registrations.status, 'verified'))),
         fetchObjCount(db.select({ value: count() }).from(gallery)),
         fetchObjCount(db.select({ value: count() }).from(announcements)),
+        fetchObjCount(db.select({ value: count() }).from(tickets)),
     ]);
 
     const stats = [
         { title: "Total Registrations", value: registrationsCount || 0, icon: Users, href: "/admin/registrations", color: "from-blue-500/20 to-blue-500/0 text-blue-400" },
         { title: "Verified Contestants", value: contestantsCount || 0, icon: Star, href: "/admin/contestants", color: "from-gold/20 to-gold/0 text-gold-light" },
+        { title: "Audience Tickets", value: ticketsCount || 0, icon: Ticket, href: "/admin/tickets", color: "from-pink-500/20 to-pink-500/0 text-pink-400" },
         { title: "Gallery Items", value: galleryCount || 0, icon: ImageIcon, href: "/admin/gallery", color: "from-purple-500/20 to-purple-500/0 text-purple-400" },
         { title: "Announcements", value: announcementsCount || 0, icon: Bell, href: "/admin/announcements", color: "from-green-500/20 to-green-500/0 text-green-400" },
     ];
@@ -45,7 +48,7 @@ export default async function AdminDashboard() {
                 <p className="text-gray-400">Here is an overview of your platform's activity.</p>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-12">
                 {stats.map((stat) => (
                     <Link
                         key={stat.title}
