@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Lock, ChevronRight } from "lucide-react";
 
 export default function AdminLogin() {
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -16,17 +17,17 @@ export default function AdminLogin() {
         setError("");
 
         try {
-            const res = await fetch("/api/admin/login", {
+            const res = await fetch("/api/secure-admin/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ password }),
+                body: JSON.stringify({ username, password }),
             });
 
             if (!res.ok) {
-                throw new Error("Invalid password");
+                throw new Error("Invalid username or password");
             }
 
-            router.push("/admin");
+            router.push("/secure-admin");
             router.refresh();
         } catch (err: any) {
             setError(err.message || "An error occurred");
@@ -49,6 +50,14 @@ export default function AdminLogin() {
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div>
+                        <input
+                            type="text"
+                            placeholder="Admin Username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full p-4 mb-4 rounded-xl bg-white/5 border border-white/10 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all text-center tracking-widest"
+                            required
+                        />
                         <input
                             type="password"
                             placeholder="••••••••"

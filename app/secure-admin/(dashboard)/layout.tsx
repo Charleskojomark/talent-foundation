@@ -18,18 +18,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const router = useRouter();
 
     const navigation = [
-        { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-        { name: "Registrations", href: "/admin/registrations", icon: Users },
-        { name: "Contestants", href: "/admin/contestants", icon: Star },
-        { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
-        { name: "Announcements", href: "/admin/announcements", icon: Bell },
-        { name: "Judges", href: "/admin/judges", icon: Gavel },
-        { name: "Tickets", href: "/admin/tickets", icon: Ticket },
+        { name: "Dashboard", href: "/secure-admin", icon: LayoutDashboard },
+        { name: "Registrations", href: "/secure-admin/registrations", icon: Users },
+        { name: "Contestants", href: "/secure-admin/contestants", icon: Star },
+        { name: "Gallery", href: "/secure-admin/gallery", icon: ImageIcon },
+        { name: "Announcements", href: "/secure-admin/announcements", icon: Bell },
+        { name: "Judges", href: "/secure-admin/judges", icon: Gavel },
+        { name: "Tickets", href: "/secure-admin/tickets", icon: Ticket },
     ];
 
     const handleLogout = async () => {
-        await fetch("/api/admin/logout", { method: "POST" });
-        router.push("/admin/login");
+        await fetch("/api/secure-admin/logout", { method: "POST" });
+        router.push("/secure-admin/login");
         router.refresh();
     };
 
@@ -38,14 +38,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Sidebar */}
             <aside className="w-64 border-r border-white/10 bg-black/50 hidden md:flex flex-col relative z-20">
                 <div className="p-6 border-b border-white/10">
-                    <Link href="/admin" className="text-xl font-black tracking-tight">
+                    <Link href="/secure-admin" className="text-xl font-black tracking-tight">
                         TGI <span className="text-gradient-gold">Admin</span>
                     </Link>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
                     {navigation.map((item) => {
-                        const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+                        const isActive = pathname === item.href || (item.href !== "/secure-admin" && pathname.startsWith(item.href));
 
                         return (
                             <Link

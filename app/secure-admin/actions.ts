@@ -47,15 +47,18 @@ export async function updatePaymentStatus(registrationId: string, status: "verif
         }
     }
 
-    revalidatePath("/admin/registrations");
-    revalidatePath("/admin/contestants");
-    revalidatePath("/admin");
+    revalidatePath("/secure-admin/registrations");
+    revalidatePath("/secure-admin/contestants");
+    revalidatePath("/secure-admin/gallery");
+    revalidatePath("/secure-admin/announcements");
+    revalidatePath("/secure-admin/judges");
+    revalidatePath("/secure-admin");
 }
 
 export async function addGalleryItem(url: string, type: "image" | "video", caption: string) {
     try {
         const [newItem] = await db.insert(gallery).values({ url, type, caption }).returning();
-        revalidatePath("/admin/gallery");
+        revalidatePath("/secure-admin/gallery");
         revalidatePath("/");
         return newItem;
     } catch (error: any) {
@@ -69,7 +72,7 @@ export async function toggleGalleryFeatured(id: string, is_featured: boolean) {
     } catch (error: any) {
         throw new Error(`Failed to update item: ${error.message}`);
     }
-    revalidatePath("/admin/gallery");
+    revalidatePath("/secure-admin/gallery");
     revalidatePath("/");
 }
 
@@ -95,7 +98,7 @@ export async function deleteGalleryItem(id: string) {
         throw new Error(`Failed to delete item: ${error.message}`);
     }
 
-    revalidatePath("/admin/gallery");
+    revalidatePath("/secure-admin/gallery");
     revalidatePath("/");
 }
 
@@ -105,7 +108,7 @@ export async function addAnnouncement(title: string, content: string, type: "upd
     } catch (error: any) {
         throw new Error(`Failed to add announcement: ${error.message}`);
     }
-    revalidatePath("/admin/announcements");
+    revalidatePath("/secure-admin/announcements");
 }
 
 export async function deleteAnnouncement(id: string) {
@@ -114,7 +117,7 @@ export async function deleteAnnouncement(id: string) {
     } catch (error: any) {
         throw new Error(`Failed to delete announcement: ${error.message}`);
     }
-    revalidatePath("/admin/announcements");
+    revalidatePath("/secure-admin/announcements");
 }
 
 export async function addJudge(name: string, bio: string, photoUrl: string, socialLinks: any) {
@@ -123,7 +126,7 @@ export async function addJudge(name: string, bio: string, photoUrl: string, soci
     } catch (error: any) {
         throw new Error(`Failed to add judge: ${error.message}`);
     }
-    revalidatePath("/admin/judges");
+    revalidatePath("/secure-admin/judges");
 }
 
 export async function deleteJudge(id: string) {
@@ -132,7 +135,7 @@ export async function deleteJudge(id: string) {
     } catch (error: any) {
         throw new Error(`Failed to delete judge: ${error.message}`);
     }
-    revalidatePath("/admin/judges");
+    revalidatePath("/secure-admin/judges");
 }
 
 export async function blockUser(registrationId: string) {
@@ -142,9 +145,9 @@ export async function blockUser(registrationId: string) {
         throw new Error(`Failed to block user: ${error.message}`);
     }
 
-    revalidatePath("/admin/registrations");
-    revalidatePath("/admin/contestants");
-    revalidatePath("/admin");
+    revalidatePath("/secure-admin/registrations");
+    revalidatePath("/secure-admin/contestants");
+    revalidatePath("/secure-admin");
 }
 
 // ============================================
@@ -166,7 +169,7 @@ export async function saveLiveAuditionScore(id: string, score: number) {
             liveAuditionScore: score,
             currentStage: 'live_audition_completed'
         }).where(eq(registrations.id, id));
-        revalidatePath("/admin/registrations");
+        revalidatePath("/secure-admin/registrations");
     } catch (error: any) {
         throw new Error(`Failed to save score: ${error.message}`);
     }
@@ -196,7 +199,7 @@ export async function unblockUser(registrationId: string) {
         throw new Error(`Failed to unblock user: ${error.message}`);
     }
 
-    revalidatePath("/admin/registrations");
-    revalidatePath("/admin/contestants");
-    revalidatePath("/admin");
+    revalidatePath("/secure-admin/registrations");
+    revalidatePath("/secure-admin/contestants");
+    revalidatePath("/secure-admin");
 }

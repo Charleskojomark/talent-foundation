@@ -35,7 +35,7 @@ export default function TicketsClient({ initialData }: { initialData: TicketData
         setVerifyingId(null);
 
         try {
-            const res = await fetch("/api/admin/tickets/verify", {
+            const res = await fetch("/api/secure-admin/tickets/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id }),

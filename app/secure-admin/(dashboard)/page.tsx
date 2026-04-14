@@ -34,11 +34,11 @@ export default async function AdminDashboard() {
     ]);
 
     const stats = [
-        { title: "Total Registrations", value: registrationsCount || 0, icon: Users, href: "/admin/registrations", color: "from-blue-500/20 to-blue-500/0 text-blue-400" },
-        { title: "Verified Contestants", value: contestantsCount || 0, icon: Star, href: "/admin/contestants", color: "from-gold/20 to-gold/0 text-gold-light" },
-        { title: "Audience Tickets", value: ticketsCount || 0, icon: Ticket, href: "/admin/tickets", color: "from-pink-500/20 to-pink-500/0 text-pink-400" },
-        { title: "Gallery Items", value: galleryCount || 0, icon: ImageIcon, href: "/admin/gallery", color: "from-purple-500/20 to-purple-500/0 text-purple-400" },
-        { title: "Announcements", value: announcementsCount || 0, icon: Bell, href: "/admin/announcements", color: "from-green-500/20 to-green-500/0 text-green-400" },
+        { title: "Total Registrations", value: registrationsCount || 0, icon: Users, href: "/secure-admin/registrations", color: "from-blue-500/20 to-blue-500/0 text-blue-400" },
+        { title: "Verified Contestants", value: contestantsCount || 0, icon: Star, href: "/secure-admin/contestants", color: "from-gold/20 to-gold/0 text-gold-light" },
+        { title: "Audience Tickets", value: ticketsCount || 0, icon: Ticket, href: "/secure-admin/tickets", color: "from-pink-500/20 to-pink-500/0 text-pink-400" },
+        { title: "Gallery Items", value: galleryCount || 0, icon: ImageIcon, href: "/secure-admin/gallery", color: "from-purple-500/20 to-purple-500/0 text-purple-400" },
+        { title: "Announcements", value: announcementsCount || 0, icon: Bell, href: "/secure-admin/announcements", color: "from-green-500/20 to-green-500/0 text-green-400" },
     ];
 
     return (

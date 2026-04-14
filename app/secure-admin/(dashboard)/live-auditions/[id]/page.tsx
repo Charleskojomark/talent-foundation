@@ -66,7 +66,7 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
             await saveLiveAuditionScore(id, totalScore);
 
             alert("Score saved successfully!");
-            router.push("/admin/registrations");
+            router.push("/secure-admin/registrations");
         } catch (err) {
             console.error(err);
             alert("Failed to save score");
@@ -91,7 +91,7 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
                     <div className="flex-1">
                         <LiveAuditionRoom
                             {...roomData}
-                            onLeave={() => router.push("/admin/registrations")}
+                            onLeave={() => router.push("/secure-admin/registrations")}
                         />
                     </div>
 
@@ -99,7 +99,7 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
                     <div className="w-full md:w-96 bg-zinc-900 border-l border-white/10 p-8 flex flex-col z-[60] shadow-2xl overflow-y-auto">
                         <div className="mb-10">
                             <button
-                                onClick={() => router.push("/admin/registrations")}
+                                onClick={() => router.push("/secure-admin/registrations")}
                                 className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors text-sm mb-6"
                             >
                                 <ChevronLeft size={16} /> Back to Dashboard
