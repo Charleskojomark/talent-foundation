@@ -22,7 +22,7 @@ export async function sendSecondVideoEmail(email: string, name: string) {
                     <div style="background-color: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #333;">
                         <h2 style="color: #dfb14b; font-size: 18px; margin-top: 0;">What's Next?</h2>
                         <p style="font-size: 14px; color: #ccc;">You are now required to submit your <strong>second audition video</strong>. This video should be a performance of your chosen song with <strong>instrumentals only</strong> (no lead vocals in the background).</p>
-                        <p style="font-size: 14px; color: #ccc;">Please visit our website and navigate to the <strong>Second Video Submission</strong> page to upload your file.</p>
+                        <p style="font-size: 14px; color: #ccc;">Please visit our website homepage and navigate to the <strong>Second Audition Video</strong> button, or click directly <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://talent-foundation-z6p6.vercel.app'}/auditions/second-video" style="color: #dfb14b;">here</a> to upload your file.</p>
                     </div>
                     <p style="font-size: 14px; color: #888;">Keep this email handy as you will need your registered email address to submit the video.</p>
                     <p style="font-size: 16px; line-height: 1.6; margin-top: 30px;">Best regards,<br/>The Talent Foundation Team</p>
