@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { registrations, gallery, announcements, judges, tickets } from "@/lib/db/schema";
 import { eq, like, desc, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { sendSecondVideoEmail } from "@/lib/email";
+import { sendSecondVideoEmail, sendLiveAuditionCompletedEmail } from "@/lib/email";
 import { deleteFromR2 } from "@/lib/storage";
 
 export async function updatePaymentStatus(registrationId: string, status: "verified" | "rejected") {
@@ -169,6 +169,12 @@ export async function saveLiveAuditionScore(id: string, score: number) {
             liveAuditionScore: score,
             currentStage: 'live_audition_completed'
         }).where(eq(registrations.id, id));
+
+        const contestant = await getContestant(id);
+        if (contestant && contestant.email) {
+            await sendLiveAuditionCompletedEmail(contestant.email, contestant.fullName);
+        }
+
         revalidatePath("/secure-admin/registrations");
     } catch (error: any) {
         throw new Error(`Failed to save score: ${error.message}`);

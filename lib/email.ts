@@ -224,3 +224,37 @@ export async function sendTicketVerifiedEmail(email: string, name: string, ticke
         return { success: false, error };
     }
 }
+
+export async function sendLiveAuditionCompletedEmail(email: string, name: string) {
+    try {
+        const mailOptions = {
+            from: `"The Gospel Icon" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: '🌟 Live Audition Completed - What\'s Next?',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #050505; color: #ffffff; border-radius: 12px; border: 1px solid #dfb14b;">
+                    <h1 style="color: #dfb14b; font-size: 24px; margin-bottom: 10px;">Audition Completely Reviewed 🎉</h1>
+                    <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${name}</strong>,</p>
+                    <p style="font-size: 16px; line-height: 1.6;">Thank you for your performance! The judges have officially submitted your scores for the Live Audition phase of The Gospel Icon Season 2.</p>
+                    
+                    <div style="background-color: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #333;">
+                        <h2 style="color: #dfb14b; font-size: 18px; margin-top: 0;">What happens now?</h2>
+                        <ul style="list-style: none; padding: 0; color: #ccc;">
+                            <li style="margin-bottom: 10px;">• The administrative team will compile and average all scores.</li>
+                            <li style="margin-bottom: 10px;">• Finalists advancing to the next stage will be notified securely via this email address.</li>
+                            <li style="margin-bottom: 10px;">• Please keep an eye on your inbox over the coming days!</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="font-size: 16px; line-height: 1.6; margin-top: 30px;">Best regards,<br/>The Gospel Icon Team</p>
+                </div>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        return { success: true, data: info };
+    } catch (error) {
+        console.error("Live Audition Completed Email Failed:", error);
+        return { success: false, error };
+    }
+}
