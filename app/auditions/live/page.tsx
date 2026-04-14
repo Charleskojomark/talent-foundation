@@ -4,7 +4,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Video, ArrowRight, AlertCircle } from "lucide-react";
-import { verifyLiveAuditionEmail } from "@/app/admin/actions";
+import { verifyLiveAuditionEmail } from "@/app/secure-admin/actions";
 
 const getErrorMessage = (error: unknown) =>
     error instanceof Error ? error.message : "An unexpected error occurred.";

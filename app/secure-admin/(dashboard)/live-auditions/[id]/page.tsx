@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { Save, ChevronLeft, Loader2 } from "lucide-react";
-import { getContestant, saveLiveAuditionScore } from "@/app/admin/actions";
+import { getContestant, saveLiveAuditionScore } from "@/app/secure-admin/actions";
 
 const LiveAuditionRoom = dynamic(() => import("@/components/auditions/LiveAuditionRoom"), {
     ssr: false,
