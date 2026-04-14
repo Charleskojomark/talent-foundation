@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, X, ChevronRight, PlayCircle, FileText, User, Calendar, MapPin, Mail, Phone, Trophy, Eye, Link as LinkIcon, Music } from "lucide-react";
+import { Search, Filter, X, ChevronRight, PlayCircle, FileText, User, Calendar, MapPin, Mail, Phone, Trophy, Eye, Link as LinkIcon, Music, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { updatePaymentStatus, blockUser, unblockUser } from "../../actions";
 
@@ -42,6 +42,14 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
     const [scheduledSong, setScheduledSong] = useState("");
     const [scheduledTime, setScheduledTime] = useState("");
 
+    // Toast notification state
+    const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+    const showToast = useCallback((type: "success" | "error", message: string) => {
+        setToast({ type, message });
+        setTimeout(() => setToast(null), 4000);
+    }, []);
+
     const filteredData = useMemo(() => {
         return data.filter((item) => {
             const matchesSearch = item.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,14 +72,14 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || "Failed to advance stage");
 
-            alert(`Succesfully advanced to ${nextStage.replace(/_/g, ' ')}! Email notification sent.`);
+            showToast("success", `Advanced to ${nextStage.replace(/_/g, " ")}! Email notification sent to contestant.`);
 
             // Update local state
             setSelectedUser(prev => prev ? { ...prev, currentStage: nextStage, ...extras } : null);
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 2500);
         } catch (error: any) {
             console.error("Stage Update Error:", error);
-            alert(`Error: ${error.message}`);
+            showToast("error", error.message || "Failed to update stage.");
         } finally {
             setIsUpdating(false);
         }
@@ -85,10 +93,11 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
             } else {
                 await blockUser(id);
             }
-            window.location.reload();
+            showToast("success", isBlocked ? "User has been unblocked." : "Contestant has been blocked.");
+            setTimeout(() => window.location.reload(), 2000);
         } catch (error) {
             console.error(error);
-            alert("Failed to update block status");
+            showToast("error", "Failed to update block status.");
         } finally {
             setIsUpdating(false);
         }
@@ -99,15 +108,12 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
         try {
             setIsUpdating(true);
             await updatePaymentStatus(id, newStatus);
-
-            // Update local state so it reflects immediately
             setSelectedUser(prev => prev ? { ...prev, paymentStatus: newStatus, status: newStatus } : null);
-
-            // Data prop is not reactive from server automatically unless we refresh the router
-            window.location.reload();
+            showToast("success", `Payment ${newStatus === "verified" ? "approved" : "rejected"} successfully.`);
+            setTimeout(() => window.location.reload(), 2000);
         } catch (error) {
             console.error(error);
-            alert("Failed to update status");
+            showToast("error", "Failed to update status.");
         } finally {
             setIsUpdating(false);
         }
@@ -463,7 +469,10 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                             <button
                                                                 disabled={isUpdating}
                                                                 onClick={() => {
-                                                                    if (!scheduledSong || !scheduledTime) return alert("Please assign a song and time");
+                                                                    if (!scheduledSong || !scheduledTime) {
+                                                                        showToast("error", "Please assign a song and a scheduled time.");
+                                                                        return;
+                                                                    }
                                                                     handleAdvanceStage(selectedUser.id, 'live_audition_scheduled', {
                                                                         song: scheduledSong,
                                                                         scheduledTime: scheduledTime,
@@ -541,6 +550,33 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                 )}
             </AnimatePresence>
 
+            {/* Global Toast Notification */}
+            <AnimatePresence>
+                {toast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 40, scale: 0.95 }}
+                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-sm"
+                        style={{
+                            background: toast.type === "success" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
+                            borderColor: toast.type === "success" ? "rgba(34,197,94,0.4)" : "rgba(239,68,68,0.4)",
+                        }}
+                    >
+                        {toast.type === "success" ? (
+                            <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
+                        ) : (
+                            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+                        )}
+                        <p className={`text-sm font-medium ${toast.type === "success" ? "text-green-300" : "text-red-300"}`}>
+                            {toast.message}
+                        </p>
+                        <button onClick={() => setToast(null)} className="ml-2 text-white/40 hover:text-white transition-colors">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
