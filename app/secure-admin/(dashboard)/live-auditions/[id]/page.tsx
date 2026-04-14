@@ -91,6 +91,7 @@ export default function JudgeLiveAuditionPage({ params }: { params: Promise<{ id
                     <div className="flex-1">
                         <LiveAuditionRoom
                             {...roomData}
+                            isJudge={true}
                             onLeave={() => router.push("/secure-admin/registrations")}
                         />
                     </div>

@@ -17,6 +17,7 @@ interface LiveAuditionRoomProps {
     uid: string;
     contestantName: string;
     assignedSong?: string;
+    isJudge?: boolean;
     onLeave: () => void;
 }
 
@@ -27,6 +28,7 @@ export default function LiveAuditionRoom({
     uid,
     contestantName,
     assignedSong,
+    isJudge = false,
     onLeave
 }: LiveAuditionRoomProps) {
     const [client, setClient] = useState<IAgoraRTCClient | null>(null);
@@ -116,7 +118,7 @@ export default function LiveAuditionRoom({
     };
 
     return (
-        <div className="fixed inset-0 bg-black z-50 flex flex-col md:flex-row overflow-hidden">
+        <div className="relative w-full h-[100dvh] bg-black z-50 flex flex-col md:flex-row overflow-hidden">
             {/* Main Stage */}
             <div className="flex-1 relative bg-zinc-900">
                 {/* Remote Users (Judges) */}
@@ -125,18 +127,18 @@ export default function LiveAuditionRoom({
                         remoteUsers.map((user) => (
                             <div key={user.uid} className="relative w-full h-full">
                                 <RemoteVideoPlayer user={user} />
-                                <div className="absolute bottom-6 left-6 flex items-center gap-2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                                <div className="absolute bottom-6 left-6 flex items-center gap-2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 z-30">
                                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                                    <span className="text-white font-medium">Judge (Live)</span>
+                                    <span className="text-white font-medium">{isJudge ? "Contestant (Live)" : "Judge (Live)"}</span>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
+                        <div className="flex flex-col items-center justify-center w-full h-full text-zinc-500 space-y-4 z-10 absolute inset-0">
                             <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center animate-pulse">
                                 <User className="w-10 h-10" />
                             </div>
-                            <p className="text-lg font-medium">Waiting for judge to join...</p>
+                            <p className="text-lg font-medium">{isJudge ? "Waiting for contestant to join..." : "Waiting for judge to join..."}</p>
                         </div>
                     )}
                 </div>
@@ -176,7 +178,7 @@ export default function LiveAuditionRoom({
                 </AnimatePresence>
 
                 {/* Controls */}
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 z-[60]">
                     <button
                         onClick={toggleMic}
                         className={`p-4 rounded-full transition-all ${isMicOn ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-red-500 text-white'}`}
