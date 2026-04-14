@@ -46,15 +46,15 @@ export default function EmailsClient({ initialData }: { initialData: EmailData[]
                     <p className="text-zinc-500 mt-1">Manage and export participant contact information.</p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 bg-zinc-900 border border-white/10 rounded-xl p-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center w-full md:w-auto gap-4">
+                    <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 sm:gap-2 bg-zinc-900 border border-white/10 rounded-xl p-1">
                         {["All", "Contestant", "Ticket Buyer"].map((type) => (
                             <button
                                 key={type}
                                 onClick={() => setFilterSource(type as any)}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${filterSource === type
-                                        ? "bg-white/10 text-white"
-                                        : "text-zinc-500 hover:text-zinc-300"
+                                className={`px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all w-full text-center whitespace-nowrap ${filterSource === type
+                                    ? "bg-white/10 text-white"
+                                    : "text-zinc-500 hover:text-zinc-300"
                                     }`}
                             >
                                 {type}
@@ -64,7 +64,7 @@ export default function EmailsClient({ initialData }: { initialData: EmailData[]
                     <button
                         onClick={handleCopyAll}
                         disabled={filteredData.length === 0}
-                        className="px-6 py-3 rounded-xl font-bold bg-gold text-black hover:bg-gold-light transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold bg-gold text-black hover:bg-gold-light transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                         {copied ? <Check size={18} /> : <Copy size={18} />}
                         {copied ? "Copied!" : "Copy All Visible"}
@@ -108,8 +108,8 @@ export default function EmailsClient({ initialData }: { initialData: EmailData[]
                                         <td className="p-4 text-zinc-400">{item.email}</td>
                                         <td className="p-4">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${item.source === "Contestant"
-                                                    ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
-                                                    : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                                ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                                                : "bg-blue-500/10 text-blue-400 border-blue-500/20"
                                                 }`}>
                                                 {item.source === "Contestant" ? <Users size={12} /> : <Ticket size={12} />}
                                                 {item.source}
