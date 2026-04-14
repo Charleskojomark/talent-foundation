@@ -486,7 +486,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                                 <p className="font-bold text-gold-light">{selectedUser.liveAuditionSong}</p>
                                                             </div>
                                                             <Link
-                                                                href={`/admin/live-auditions/${selectedUser.id}`}
+                                                                href={`/secure-admin/live-auditions/${selectedUser.id}`}
                                                                 className="w-full py-3 px-4 rounded-xl font-bold bg-green-600 text-white hover:bg-green-500 transition-colors flex items-center justify-center gap-2"
                                                             >
                                                                 Join Live Room <PlayCircle size={18} />

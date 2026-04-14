@@ -56,11 +56,14 @@ export async function POST(req: Request) {
             if (nextStage === "second_video_pending") {
                 emailRes = await sendSecondVideoEmail(contestant.email, contestant.full_name);
             } else if (nextStage === "live_audition_scheduled") {
+                const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://talent-foundation-z6p6.vercel.app";
+                const liveRoomUrl = `${baseUrl}/auditions/live`;
                 emailRes = await sendLiveAuditionScheduledEmail(
                     contestant.email,
                     contestant.full_name,
                     song || "Assigned Song",
-                    scheduledTime
+                    scheduledTime,
+                    liveRoomUrl
                 );
             }
 

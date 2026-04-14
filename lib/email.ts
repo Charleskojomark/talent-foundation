@@ -38,7 +38,7 @@ export async function sendSecondVideoEmail(email: string, name: string) {
     }
 }
 
-export async function sendLiveAuditionScheduledEmail(email: string, name: string, song: string, time: string) {
+export async function sendLiveAuditionScheduledEmail(email: string, name: string, song: string, time: string, liveRoomUrl: string) {
     try {
         const formattedDate = new Date(time).toLocaleString('en-US', {
             weekday: 'long',
@@ -51,23 +51,27 @@ export async function sendLiveAuditionScheduledEmail(email: string, name: string
         });
 
         const mailOptions = {
-            from: `"Talent Foundation" <${process.env.SMTP_USER}>`,
+            from: `"The Gospel Icon" <${process.env.SMTP_USER}>`,
             to: email,
-            subject: 'Your Live Audition is Scheduled!',
+            subject: '🎙️ Your Live Audition is Scheduled!',
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #050505; color: #ffffff; border-radius: 12px; border: 1px solid #dfb14b;">
-                    <h1 style="color: #dfb14b; font-size: 24px; margin-bottom: 20px;">Live Audition Schedule</h1>
+                    <h1 style="color: #dfb14b; font-size: 24px; margin-bottom: 10px;">Live Audition Scheduled 🎉</h1>
                     <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${name}</strong>,</p>
-                    <p style="font-size: 16px; line-height: 1.6;">Your live audition has been scheduled! You are advancing to <strong>Stage 3</strong>.</p>
+                    <p style="font-size: 16px; line-height: 1.6;">Congratulations! Your live audition has been scheduled. You are advancing to <strong>Stage 3</strong>.</p>
                     <div style="background-color: #111; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #333;">
                         <h2 style="color: #dfb14b; font-size: 18px; margin-top: 0;">Audition Details</h2>
                         <ul style="list-style: none; padding: 0; color: #ccc;">
-                            <li style="margin-bottom: 10px;"><strong>Assigned Alternative Song:</strong> <span style="color: #fff;">${song}</span></li>
+                            <li style="margin-bottom: 10px;"><strong>Assigned Song:</strong> <span style="color: #fff;">${song}</span></li>
                             <li style="margin-bottom: 10px;"><strong>Scheduled Time:</strong> <span style="color: #fff;">${formattedDate}</span></li>
                         </ul>
                     </div>
-                    <p style="font-size: 14px; color: #ccc;">Please be ready at least 10 minutes before your scheduled time. You can join the live room via the link on our website using your registered email.</p>
-                    <p style="font-size: 16px; line-height: 1.6; margin-top: 30px;">Best regards,<br/>The Talent Foundation Team</p>
+                    <p style="font-size: 14px; color: #ccc;">Please be ready at least <strong>10 minutes</strong> before your scheduled time. Click the button below to join your live audition room:</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${liveRoomUrl}" style="display: inline-block; background: linear-gradient(to right, #dfb14b, #f5d681); color: #000; font-weight: bold; font-size: 16px; padding: 14px 32px; border-radius: 50px; text-decoration: none;">🎙️ Join Live Audition Room</a>
+                    </div>
+                    <p style="font-size: 12px; color: #666;">Or copy this link: <a href="${liveRoomUrl}" style="color: #dfb14b;">${liveRoomUrl}</a></p>
+                    <p style="font-size: 16px; line-height: 1.6; margin-top: 30px;">Best regards,<br/>The Gospel Icon Team</p>
                 </div>
             `
         };
