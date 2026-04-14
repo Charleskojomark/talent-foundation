@@ -18,7 +18,7 @@ export default function TicketPurchase() {
     const [errorMsg, setErrorMsg] = useState("");
 
     const ticketOptions = [
-        { id: "Regular", name: "Regular Admission", price: "₦100", desc: "Standard seating and entry." },
+        { id: "Regular", name: "Regular Admission", price: "₦1,000", desc: "Standard seating and entry." },
         { id: "VIP", name: "VIP Pass", price: "₦5,000", desc: "Front-row seating, dedicated entrance, and refreshments." }
     ];
 
