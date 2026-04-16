@@ -182,7 +182,7 @@ export default function Home() {
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold-light via-gold to-gold-light"></div>
               <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-gold to-gold-light flex items-center justify-center mb-6 text-black font-black text-3xl shadow-lg">1st</div>
               <h3 className="text-2xl font-bold text-gold-light mb-2">Grand Prize Winner</h3>
-              <div className="text-5xl font-black text-white mb-4">₦250,000</div>
+              <div className="text-5xl font-black text-white mb-4">₦200,000</div>
               <p className="text-sm text-gray-400">Plus management opportunities</p>
             </AnimateIn>
 
