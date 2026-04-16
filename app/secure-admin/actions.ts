@@ -198,6 +198,18 @@ export async function verifyLiveAuditionEmail(email: string) {
     }
 }
 
+export async function deleteRegistration(registrationId: string) {
+    try {
+        await db.delete(registrations).where(eq(registrations.id, registrationId));
+    } catch (error: any) {
+        throw new Error(`Failed to delete registration: ${error.message}`);
+    }
+
+    revalidatePath("/secure-admin/registrations");
+    revalidatePath("/secure-admin/contestants");
+    revalidatePath("/secure-admin");
+}
+
 export async function unblockUser(registrationId: string) {
     try {
         await db.update(registrations).set({ status: 'pending' }).where(eq(registrations.id, registrationId));

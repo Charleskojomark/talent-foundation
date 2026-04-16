@@ -2,9 +2,9 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, X, ChevronRight, PlayCircle, FileText, User, Calendar, MapPin, Mail, Phone, Trophy, Eye, Link as LinkIcon, Music, CheckCircle, AlertCircle } from "lucide-react";
+import { Search, Filter, X, ChevronRight, PlayCircle, FileText, User, Calendar, MapPin, Mail, Phone, Trophy, Eye, Link as LinkIcon, Music, CheckCircle, AlertCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { updatePaymentStatus, blockUser, unblockUser } from "../../actions";
+import { updatePaymentStatus, blockUser, unblockUser, deleteRegistration } from "../../actions";
 
 type Registration = {
     id: string;
@@ -37,6 +37,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
     const [statusFilter, setStatusFilter] = useState("all");
     const [selectedUser, setSelectedUser] = useState<Registration | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     // Scheduling state
     const [scheduledSong, setScheduledSong] = useState("");
@@ -103,6 +104,21 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
         }
     };
 
+    const handleDeleteUser = async (id: string) => {
+        try {
+            setIsUpdating(true);
+            await deleteRegistration(id);
+            setSelectedUser(null);
+            setConfirmDelete(false);
+            showToast("success", "User has been permanently deleted.");
+            setTimeout(() => window.location.reload(), 2000);
+        } catch (error) {
+            console.error(error);
+            showToast("error", "Failed to delete user.");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
 
     const handleUpdateStatus = async (id: string, newStatus: "verified" | "rejected") => {
         try {
@@ -222,7 +238,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                             transition={{ delay: idx * 0.05 }}
                                             key={item.id}
                                             className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group cursor-pointer"
-                                            onClick={() => setSelectedUser(item)}
+                                            onClick={(e) => { e.stopPropagation(); setSelectedUser(item); setConfirmDelete(false); }}
                                         >
                                             <td className="p-5">
                                                 <div className="flex items-center gap-3">
@@ -263,7 +279,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                             <td className="p-5 text-right">
                                                 <button
                                                     className="inline-flex items-center justify-center p-2 rounded-xl bg-white/5 text-gray-300 hover:bg-gold hover:text-black transition-all cursor-pointer"
-                                                    onClick={(e) => { e.stopPropagation(); setSelectedUser(item); }}
+                                                    onClick={(e) => { e.stopPropagation(); setSelectedUser(item); setConfirmDelete(false); }}
                                                 >
                                                     <Eye className="w-4 h-4" />
                                                 </button>
@@ -285,7 +301,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
-                        onClick={() => setSelectedUser(null)}
+                        onClick={() => { setSelectedUser(null); setConfirmDelete(false); }}
                     >
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -296,7 +312,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                         >
                             {/* Close Button */}
                             <button
-                                onClick={() => setSelectedUser(null)}
+                                onClick={() => { setSelectedUser(null); setConfirmDelete(false); }}
                                 className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 hover:text-red-400 transition-colors z-10"
                             >
                                 <X className="w-5 h-5" />
@@ -527,7 +543,7 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                     </button>
                                                 </div>
 
-                                                <div className="mt-4">
+                                                <div className="mt-4 space-y-3">
                                                     <button
                                                         disabled={isUpdating}
                                                         onClick={() => handleBlockUser(selectedUser.id, selectedUser.status === 'blocked')}
@@ -538,6 +554,37 @@ export function RegistrationsClient({ initialData, isContestantsOnly = false }: 
                                                     >
                                                         {selectedUser.status === 'blocked' ? 'Unblock User' : 'Block Contestant'}
                                                     </button>
+
+                                                    {/* Delete User */}
+                                                    {!confirmDelete ? (
+                                                        <button
+                                                            disabled={isUpdating}
+                                                            onClick={() => setConfirmDelete(true)}
+                                                            className="w-full py-3 px-4 rounded-xl font-bold border border-red-900/60 bg-red-950/30 text-red-500 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors flex items-center justify-center gap-2"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" /> Delete User Permanently
+                                                        </button>
+                                                    ) : (
+                                                        <div className="p-4 rounded-xl border border-red-600/60 bg-red-950/40 space-y-3">
+                                                            <p className="text-sm font-bold text-red-400 text-center">⚠️ This cannot be undone. Delete <span className="text-white">{selectedUser.fullName}</span>?</p>
+                                                            <div className="flex gap-3">
+                                                                <button
+                                                                    disabled={isUpdating}
+                                                                    onClick={() => handleDeleteUser(selectedUser.id)}
+                                                                    className="flex-1 py-2.5 px-4 rounded-xl font-bold bg-red-600 text-white hover:bg-red-500 transition-colors"
+                                                                >
+                                                                    {isUpdating ? 'Deleting...' : 'Yes, Delete'}
+                                                                </button>
+                                                                <button
+                                                                    disabled={isUpdating}
+                                                                    onClick={() => setConfirmDelete(false)}
+                                                                    className="flex-1 py-2.5 px-4 rounded-xl font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
